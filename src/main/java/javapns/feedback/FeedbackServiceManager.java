@@ -18,24 +18,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class for interacting with a specific Feedback Service. 
- *
+ * Class for interacting with a specific Feedback Service.
+ * 
  * @author kljajo, dgardon, Sylvain Pedneault
- *
+ * 
  */
 @SuppressWarnings("deprecation")
 public class FeedbackServiceManager {
-  protected static final Logger logger = LoggerFactory.getLogger(FeedbackServiceManager.class);
+  protected static final Logger logger              = LoggerFactory.getLogger(FeedbackServiceManager.class);
 
   /* Length of the tuple sent by Apple */
-  private static final int FEEDBACK_TUPLE_SIZE = 38;
+  private static final int      FEEDBACK_TUPLE_SIZE = 38;
 
   @Deprecated
-  private DeviceFactory deviceFactory;
+  private DeviceFactory         deviceFactory;
 
   /**
    * Constructs a FeedbackServiceManager with a supplied DeviceFactory.
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * 
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public FeedbackServiceManager(DeviceFactory deviceFactory) {
@@ -50,22 +51,25 @@ public class FeedbackServiceManager {
   }
 
   /**
-   * Retrieve all devices which have un-installed the application w/Path to keystore
+   * Retrieve all devices which have un-installed the application w/Path to
+   * keystore
    * 
-   * @param server Connection information for the Apple server
+   * @param server
+   *          Connection information for the Apple server
    * @return List of Devices
-   * @throws IOException 
-   * @throws FileNotFoundException 
-   * @throws CertificateException 
-   * @throws NoSuchAlgorithmException 
-   * @throws KeyStoreException 
-   * @throws KeyManagementException 
-   * @throws UnrecoverableKeyException 
+   * @throws IOException
+   * @throws FileNotFoundException
+   * @throws CertificateException
+   * @throws NoSuchAlgorithmException
+   * @throws KeyStoreException
+   * @throws KeyManagementException
+   * @throws UnrecoverableKeyException
    */
   /**
-   * @throws KeystoreException 
-   * @throws CommunicationException 
+   * @throws KeystoreException
+   * @throws CommunicationException
    */
+  @SuppressWarnings("resource")
   public LinkedList<Device> getDevices(AppleFeedbackServer server) throws KeystoreException, CommunicationException {
     ConnectionToFeedbackServer connectionHelper = new ConnectionToFeedbackServer(server);
     SSLSocket socket = connectionHelper.getSSLSocket();
@@ -77,15 +81,13 @@ public class FeedbackServiceManager {
    * 
    * @param socket
    * @return Devices
-   * @throws CommunicationException 
+   * @throws CommunicationException
    */
   private LinkedList<Device> getDevices(SSLSocket socket) throws CommunicationException {
     // Compute
     LinkedList<Device> listDev = null;
-    try {
-      InputStream socketStream = socket.getInputStream();
-
-      // Read bytes        
+    try (InputStream socketStream = socket.getInputStream();) {
+      // Read bytes
       byte[] b = new byte[1024];
       ByteArrayOutputStream message = new ByteArrayOutputStream();
       int nbBytes = 0;
@@ -130,7 +132,10 @@ public class FeedbackServiceManager {
         }
 
         // Build device and add to list
-        /* Create a basic device, as we do not want to go through the factory and create a device in the actual database... */
+        /*
+         * Create a basic device, as we do not want to go through the factory
+         * and create a device in the actual database...
+         */
         Device device = new BasicDevice();
         device.setToken(deviceToken);
         device.setLastRegister(timestamp);
@@ -155,27 +160,28 @@ public class FeedbackServiceManager {
     return listDev;
   }
 
-  //	/**
-  //	 * Set the proxy if needed
-  //	 * @param host the proxyHost
-  //	 * @param port the proxyPort
-  //	 * @deprecated Configuring a proxy with this method affects overall JVM proxy settings.
-  //	 * Use AppleFeedbackServer.setProxy(..) to set a proxy for JavaPNS only.
-  //	 */
-  //	public void setProxy(String host, String port) {
-  //		this.proxySet = true;
+  // /**
+  // * Set the proxy if needed
+  // * @param host the proxyHost
+  // * @param port the proxyPort
+  // * @deprecated Configuring a proxy with this method affects overall JVM
+  // proxy settings.
+  // * Use AppleFeedbackServer.setProxy(..) to set a proxy for JavaPNS only.
+  // */
+  // public void setProxy(String host, String port) {
+  // this.proxySet = true;
   //
-  //		System.setProperty("http.proxyHost", host);
-  //		System.setProperty("http.proxyPort", port);
+  // System.setProperty("http.proxyHost", host);
+  // System.setProperty("http.proxyPort", port);
   //
-  //		System.setProperty("https.proxyHost", host);
-  //		System.setProperty("https.proxyPort", port);
-  //	}
+  // System.setProperty("https.proxyHost", host);
+  // System.setProperty("https.proxyPort", port);
+  // }
 
   /**
    * 
    * @param deviceFactory
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public void setDeviceFactory(DeviceFactory deviceFactory) {
@@ -185,7 +191,7 @@ public class FeedbackServiceManager {
   /**
    * 
    * @return a device factory
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public DeviceFactory getDeviceFactory() {

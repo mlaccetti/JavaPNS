@@ -45,5 +45,19 @@
       <artifactId>bcprov-jdk16</artifactId>
       <version>1.46</version>
     </dependency>
+    
+    <!-- Testing -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.0.9</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

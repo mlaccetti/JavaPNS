@@ -31,9 +31,6 @@ public class BasicDeviceFactory implements DeviceFactory {
   /* A map containing all the devices, identified with their id */
   private Map<String, BasicDevice> devices;
 
-  /* synclock */
-  private static final Object synclock = new Object();
-
   /**
    * Constructs a VolatileDeviceFactory
    */

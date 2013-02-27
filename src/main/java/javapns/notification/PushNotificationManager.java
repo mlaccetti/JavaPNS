@@ -37,9 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The main class used to send notification and handle a connection to Apple SSLServerSocket.
- * This class is not multi-threaded.  One instance per thread must be created.
- *
+ * The main class used to send notification and handle a connection to Apple
+ * SSLServerSocket. This class is not multi-threaded. One instance per thread
+ * must be created.
+ * 
  * @author Maxime Pilon
  * @author Sylvain Pedneault
  * @author Others...
@@ -47,46 +48,52 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("deprecation")
 public class PushNotificationManager {
 
-  private static int TESTS_SERIAL_NUMBER = 1;
+  private static int                                 TESTS_SERIAL_NUMBER           = 1;
 
   /*
-   * Number of milliseconds to use as socket timeout. Set to -1 to leave the timeout to its default setting.
+   * Number of milliseconds to use as socket timeout. Set to -1 to leave the
+   * timeout to its default setting.
    */
-  private int sslSocketTimeout = 30 * 1000;
+  private int                                        sslSocketTimeout              = 30 * 1000;
 
-  static final Logger logger = LoggerFactory.getLogger(PushNotificationManager.class);
+  static final Logger                                logger                        = LoggerFactory.getLogger(PushNotificationManager.class);
 
   /* Default retries for a connection */
-  private static final int DEFAULT_RETRIES = 3;
-
-  /* Special identifier that tells the manager to generate a sequential identifier for each payload pushed */
-  private static final int SEQUENTIAL_IDENTIFIER = -1;
-
-  private static boolean useEnhancedNotificationFormat = true;
-
-  private static boolean heavyDebugMode = false;
-
-  /* Connection helper */
-  private ConnectionToAppleServer connectionToAppleServer;
-
-  /* The always connected SSLSocket */
-  private SSLSocket socket;
-
-  /* Default retry attempts */
-  private int retryAttempts = DEFAULT_RETRIES;
-
-  private int nextMessageIdentifier = 1;
+  private static final int                           DEFAULT_RETRIES               = 3;
 
   /*
-   * To circumvent an issue with invalid server certificates, set to true to use a trust manager that will always accept server certificates, regardless of their validity.
+   * Special identifier that tells the manager to generate a sequential
+   * identifier for each payload pushed
    */
-  private boolean trustAllServerCertificates = true;
+  private static final int                           SEQUENTIAL_IDENTIFIER         = -1;
+
+  private static boolean                             useEnhancedNotificationFormat = true;
+
+  private static boolean                             heavyDebugMode                = false;
+
+  /* Connection helper */
+  private ConnectionToAppleServer                    connectionToAppleServer;
+
+  /* The always connected SSLSocket */
+  private SSLSocket                                  socket;
+
+  /* Default retry attempts */
+  private int                                        retryAttempts                 = DEFAULT_RETRIES;
+
+  private int                                        nextMessageIdentifier         = 1;
+
+  /*
+   * To circumvent an issue with invalid server certificates, set to true to use
+   * a trust manager that will always accept server certificates, regardless of
+   * their validity.
+   */
+  private boolean                                    trustAllServerCertificates    = true;
 
   /* The DeviceFactory to use with this PushNotificationManager */
   @Deprecated
-  private DeviceFactory deviceFactory;
+  private DeviceFactory                              deviceFactory;
 
-  private LinkedHashMap<Integer, PushedNotification> pushedNotifications = new LinkedHashMap<>();
+  private LinkedHashMap<Integer, PushedNotification> pushedNotifications           = new LinkedHashMap<>();
 
   /**
    * Constructs a PushNotificationManager
@@ -97,8 +104,9 @@ public class PushNotificationManager {
 
   /**
    * Constructs a PushNotificationManager using a supplied DeviceFactory
+   * 
    * @param deviceManager
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public PushNotificationManager(DeviceFactory deviceManager) {
@@ -107,9 +115,13 @@ public class PushNotificationManager {
 
   /**
    * Initialize a connection and create a SSLSocket
-   * @param server The Apple server to connect to.
-   * @throws CommunicationException thrown if a communication error occurs
-   * @throws KeystoreException thrown if there is a problem with your keystore
+   * 
+   * @param server
+   *          The Apple server to connect to.
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
+   * @throws KeystoreException
+   *           thrown if there is a problem with your keystore
    */
   public void initializeConnection(AppleNotificationServer server) throws CommunicationException, KeystoreException {
     try {
@@ -130,10 +142,8 @@ public class PushNotificationManager {
   }
 
   private void dumpCertificateChainDescription() {
-    try {
-      File file = new File("apns-certificatechain.txt");
-      FileOutputStream outf = new FileOutputStream(file);
-      DataOutputStream outd = new DataOutputStream(outf);
+    File file = new File("apns-certificatechain.txt");
+    try (FileOutputStream outf = new FileOutputStream(file); DataOutputStream outd = new DataOutputStream(outf);) {
       outd.writeBytes(getCertificateChainDescription());
       outd.close();
     } catch (Exception e) {
@@ -162,8 +172,11 @@ public class PushNotificationManager {
 
   /**
    * Initialize a connection using server settings from the previous connection.
-   * @throws CommunicationException thrown if a communication error occurs
-   * @throws KeystoreException thrown if there is a problem with your keystore
+   * 
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
+   * @throws KeystoreException
+   *           thrown if there is a problem with your keystore
    */
   public void initializePreviousConnection() throws CommunicationException, KeystoreException {
     initializeConnection((AppleNotificationServer) this.connectionToAppleServer.getServer());
@@ -171,9 +184,13 @@ public class PushNotificationManager {
 
   /**
    * Stop and restart the current connection to the Apple server
-   * @param server the server to start
-   * @throws CommunicationException thrown if a communication error occurs
-   * @throws KeystoreException thrown if there is a problem with your keystore
+   * 
+   * @param server
+   *          the server to start
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
+   * @throws KeystoreException
+   *           thrown if there is a problem with your keystore
    */
   public void restartConnection(AppleNotificationServer server) throws CommunicationException, KeystoreException {
     stopConnection();
@@ -181,9 +198,13 @@ public class PushNotificationManager {
   }
 
   /**
-   * Stop and restart the current connection to the Apple server using server settings from the previous connection.
-   * @throws CommunicationException thrown if a communication error occurs
-   * @throws KeystoreException thrown if there is a problem with your keystore
+   * Stop and restart the current connection to the Apple server using server
+   * settings from the previous connection.
+   * 
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
+   * @throws KeystoreException
+   *           thrown if there is a problem with your keystore
    */
   private void restartPreviousConnection() throws CommunicationException, KeystoreException {
     try {
@@ -196,9 +217,13 @@ public class PushNotificationManager {
   }
 
   /**
-   * Read and process any pending error-responses, and then close the connection.
-   * @throws CommunicationException thrown if a communication error occurs
-   * @throws KeystoreException thrown if there is a problem with your keystore
+   * Read and process any pending error-responses, and then close the
+   * connection.
+   * 
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
+   * @throws KeystoreException
+   *           thrown if there is a problem with your keystore
    */
   public void stopConnection() throws CommunicationException, KeystoreException {
     processedFailedNotifications();
@@ -215,12 +240,14 @@ public class PushNotificationManager {
    * 
    * If an error-response packet is received for a particular message, this
    * method assumes that messages following the one identified in the packet
-   * were completely ignored by Apple, and as such automatically retries to 
-   * send all messages after the problematic one.
+   * were completely ignored by Apple, and as such automatically retries to send
+   * all messages after the problematic one.
    * 
    * @return the number of error-response packets received
-   * @throws CommunicationException thrown if a communication error occurs
-   * @throws KeystoreException thrown if there is a problem with your keystore
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
+   * @throws KeystoreException
+   *           thrown if there is a problem with your keystore
    */
   private int processedFailedNotifications() throws CommunicationException, KeystoreException {
     if (useEnhancedNotificationFormat) {
@@ -231,8 +258,7 @@ public class PushNotificationManager {
         boolean foundFirstFail = false;
         for (PushedNotification notification : pushedNotifications.values()) {
           if (foundFirstFail || !notification.isSuccessful()) {
-            if (foundFirstFail)
-              notificationsToResend.add(notification);
+            if (foundFirstFail) notificationsToResend.add(notification);
             else {
               foundFirstFail = true;
             }
@@ -263,23 +289,33 @@ public class PushNotificationManager {
   /**
    * Send a notification to a single device and close the connection.
    * 
-   * @param device the device to be notified
-   * @param payload the payload to send
-   * @return a pushed notification with details on transmission result and error (if any)
-   * @throws CommunicationException thrown if a communication error occurs
+   * @param device
+   *          the device to be notified
+   * @param payload
+   *          the payload to send
+   * @return a pushed notification with details on transmission result and error
+   *         (if any)
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
    */
   public PushedNotification sendNotification(Device device, Payload payload) throws CommunicationException {
     return sendNotification(device, payload, true);
   }
 
   /**
-   * Send a notification to a multiple devices in a single connection and close the connection.
+   * Send a notification to a multiple devices in a single connection and close
+   * the connection.
    * 
-   * @param payload the payload to send
-   * @param devices the device to be notified
-   * @return a list of pushed notifications, each with details on transmission results and error (if any)
-   * @throws CommunicationException thrown if a communication error occurs
-   * @throws KeystoreException thrown if there is a problem with your keystore
+   * @param payload
+   *          the payload to send
+   * @param devices
+   *          the device to be notified
+   * @return a list of pushed notifications, each with details on transmission
+   *         results and error (if any)
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
+   * @throws KeystoreException
+   *           thrown if there is a problem with your keystore
    */
   public PushedNotifications sendNotifications(Payload payload, List<Device> devices) throws CommunicationException, KeystoreException {
     PushedNotifications notifications = new PushedNotifications();
@@ -290,13 +326,19 @@ public class PushNotificationManager {
   }
 
   /**
-   * Send a notification to a multiple devices in a single connection and close the connection.
+   * Send a notification to a multiple devices in a single connection and close
+   * the connection.
    * 
-   * @param payload the payload to send
-   * @param devices the device to be notified
-   * @return a list of pushed notifications, each with details on transmission results and error (if any)
-   * @throws CommunicationException thrown if a communication error occurs
-   * @throws KeystoreException thrown if there is a problem with your keystore
+   * @param payload
+   *          the payload to send
+   * @param devices
+   *          the device to be notified
+   * @return a list of pushed notifications, each with details on transmission
+   *         results and error (if any)
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
+   * @throws KeystoreException
+   *           thrown if there is a problem with your keystore
    */
   public PushedNotifications sendNotifications(Payload payload, Device... devices) throws CommunicationException, KeystoreException {
     PushedNotifications notifications = new PushedNotifications();
@@ -309,11 +351,17 @@ public class PushNotificationManager {
   /**
    * Send a notification (Payload) to the given device
    * 
-   * @param device the device to be notified
-   * @param payload the payload to send
-   * @param closeAfter indicates if the connection should be closed after the payload has been sent
-   * @return a pushed notification with details on transmission result and error (if any)
-   * @throws CommunicationException thrown if a communication error occurs
+   * @param device
+   *          the device to be notified
+   * @param payload
+   *          the payload to send
+   * @param closeAfter
+   *          indicates if the connection should be closed after the payload has
+   *          been sent
+   * @return a pushed notification with details on transmission result and error
+   *         (if any)
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
    */
   public PushedNotification sendNotification(Device device, Payload payload, boolean closeAfter) throws CommunicationException {
     return sendNotification(device, payload, closeAfter, SEQUENTIAL_IDENTIFIER);
@@ -322,11 +370,17 @@ public class PushNotificationManager {
   /**
    * Send a notification (Payload) to the given device
    * 
-   * @param device the device to be notified
-   * @param payload the payload to send
-   * @param identifier a unique identifier which will match any error reported later (if any)
-   * @return a pushed notification with details on transmission result and error (if any)
-   * @throws CommunicationException thrown if a communication error occurs
+   * @param device
+   *          the device to be notified
+   * @param payload
+   *          the payload to send
+   * @param identifier
+   *          a unique identifier which will match any error reported later (if
+   *          any)
+   * @return a pushed notification with details on transmission result and error
+   *         (if any)
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
    */
   public PushedNotification sendNotification(Device device, Payload payload, int identifier) throws CommunicationException {
     return sendNotification(device, payload, false, identifier);
@@ -335,12 +389,20 @@ public class PushNotificationManager {
   /**
    * Send a notification (Payload) to the given device
    * 
-   * @param device the device to be notified
-   * @param payload the payload to send
-   * @param closeAfter indicates if the connection should be closed after the payload has been sent
-   * @param identifier a unique identifier which will match any error reported later (if any)
-   * @return a pushed notification with details on transmission result and error (if any)
-   * @throws CommunicationException thrown if a communication error occurs
+   * @param device
+   *          the device to be notified
+   * @param payload
+   *          the payload to send
+   * @param closeAfter
+   *          indicates if the connection should be closed after the payload has
+   *          been sent
+   * @param identifier
+   *          a unique identifier which will match any error reported later (if
+   *          any)
+   * @return a pushed notification with details on transmission result and error
+   *         (if any)
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
    */
   public PushedNotification sendNotification(Device device, Payload payload, boolean closeAfter, int identifier) throws CommunicationException {
     PushedNotification pushedNotification = new PushedNotification(device, payload, identifier);
@@ -351,9 +413,13 @@ public class PushNotificationManager {
   /**
    * Actual action of sending a notification
    * 
-   * @param notification the ready-to-push notification
-   * @param closeAfter indicates if the connection should be closed after the payload has been sent
-   * @throws CommunicationException thrown if a communication error occurs
+   * @param notification
+   *          the ready-to-push notification
+   * @param closeAfter
+   *          indicates if the connection should be closed after the payload has
+   *          been sent
+   * @throws CommunicationException
+   *           thrown if a communication error occurs
    */
   private void sendNotification(PushedNotification notification, boolean closeAfter) throws CommunicationException {
     try {
@@ -367,18 +433,19 @@ public class PushNotificationManager {
         // empty
       }
 
-      if (notification.getIdentifier() <= 0)
-        notification.setIdentifier(newMessageIdentifier());
-      if (!pushedNotifications.containsKey(notification.getIdentifier()))
-        pushedNotifications.put(notification.getIdentifier(), notification);
+      if (notification.getIdentifier() <= 0) notification.setIdentifier(newMessageIdentifier());
+      if (!pushedNotifications.containsKey(notification.getIdentifier())) pushedNotifications.put(notification.getIdentifier(), notification);
       int identifier = notification.getIdentifier();
 
       String token = device.getToken();
-      // even though the BasicDevice constructor validates the token, we revalidate it in case we were passed another implementation of Device
+      // even though the BasicDevice constructor validates the token, we
+      // revalidate it in case we were passed another implementation of Device
       BasicDevice.validateTokenFormat(token);
-      //		PushedNotification pushedNotification = new PushedNotification(device, payload);
+      // PushedNotification pushedNotification = new PushedNotification(device,
+      // payload);
       byte[] bytes = getMessage(token, payload, identifier, notification);
-      //		pushedNotifications.put(pushedNotification.getIdentifier(), pushedNotification);
+      // pushedNotifications.put(pushedNotification.getIdentifier(),
+      // pushedNotification);
 
       /* Special simulation mode to skip actual streaming of message */
       boolean simulationMode = payload.getExpiry() == 919191;
@@ -386,8 +453,7 @@ public class PushNotificationManager {
       boolean success = false;
 
       int socketTimeout = getSslSocketTimeout();
-      if (socketTimeout > 0)
-        this.socket.setSoTimeout(socketTimeout);
+      if (socketTimeout > 0) this.socket.setSoTimeout(socketTimeout);
       notification.setTransmissionAttempts(0);
       // Keep trying until we have a success
       while (!success) {
@@ -404,15 +470,12 @@ public class PushNotificationManager {
               logger.debug("* Simulation only: would have streamed " + bytes.length + "-bytes message now..");
             }
           } catch (Exception e) {
-            if (e.toString().contains("certificate_unknown")) {
-              throw new InvalidCertificateChainException(e.getMessage());
-            }
+            if (e.toString().contains("certificate_unknown")) { throw new InvalidCertificateChainException(e.getMessage()); }
             throw e;
           }
           logger.debug("Flushing");
           this.socket.getOutputStream().flush();
-          if (streamConfirmed)
-            logger.debug("At this point, the entire " + bytes.length + "-bytes message has been streamed out successfully through the SSL connection");
+          if (streamConfirmed) logger.debug("At this point, the entire " + bytes.length + "-bytes message has been streamed out successfully through the SSL connection");
 
           success = true;
           logger.debug("Notification sent on " + notification.getLatestTransmissionAttempt());
@@ -428,15 +491,14 @@ public class PushNotificationManager {
             throw e;
           }
           logger.info("Attempt failed (" + e.getMessage() + ")... trying again");
-          //Try again
+          // Try again
           try {
             this.socket.close();
           } catch (Exception e2) {
             // do nothing
           }
           this.socket = connectionToAppleServer.getSSLSocket();
-          if (socketTimeout > 0)
-            this.socket.setSoTimeout(socketTimeout);
+          if (socketTimeout > 0) this.socket.setSoTimeout(socketTimeout);
         }
       }
     } catch (CommunicationException e) {
@@ -458,12 +520,15 @@ public class PushNotificationManager {
 
   /**
    * Add a device
-   * @param id The device id
-   * @param token The device token
+   * 
+   * @param id
+   *          The device id
+   * @param token
+   *          The device token
    * @throws DuplicateDeviceException
-   * @throws NullDeviceTokenException 
-   * @throws NullIdException 
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * @throws NullDeviceTokenException
+   * @throws NullIdException
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public void addDevice(String id, String token) throws DuplicateDeviceException, NullIdException, NullDeviceTokenException, Exception {
@@ -473,11 +538,13 @@ public class PushNotificationManager {
 
   /**
    * Get a device according to his id
-   * @param id The device id
+   * 
+   * @param id
+   *          The device id
    * @return The device
    * @throws UnknownDeviceException
-   * @throws NullIdException 
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * @throws NullIdException
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public Device getDevice(String id) throws UnknownDeviceException, NullIdException {
@@ -487,10 +554,12 @@ public class PushNotificationManager {
 
   /**
    * Remove a device
-   * @param id The device id
+   * 
+   * @param id
+   *          The device id
    * @throws UnknownDeviceException
    * @throws NullIdException
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public void removeDevice(String id) throws UnknownDeviceException, NullIdException {
@@ -498,33 +567,36 @@ public class PushNotificationManager {
     deviceFactory.removeDevice(id);
   }
 
-  //	/**
-  //	 * Set the proxy if needed
-  //	 * @param host the proxyHost
-  //	 * @param port the proxyPort
-  //	 * @deprecated Configuring a proxy with this method affects overall JVM proxy settings.
-  //	 * Use AppleNotificationServer.setProxy(..) to set a proxy for JavaPNS only.
-  //	 */
-  //	public void setProxy(String host, String port) {
-  //		proxySet = true;
+  // /**
+  // * Set the proxy if needed
+  // * @param host the proxyHost
+  // * @param port the proxyPort
+  // * @deprecated Configuring a proxy with this method affects overall JVM
+  // proxy settings.
+  // * Use AppleNotificationServer.setProxy(..) to set a proxy for JavaPNS only.
+  // */
+  // public void setProxy(String host, String port) {
+  // proxySet = true;
   //
-  //		System.setProperty("http.proxyHost", host);
-  //		System.setProperty("http.proxyPort", port);
+  // System.setProperty("http.proxyHost", host);
+  // System.setProperty("http.proxyPort", port);
   //
-  //		System.setProperty("https.proxyHost", host);
-  //		System.setProperty("https.proxyPort", port);
-  //	}
+  // System.setProperty("https.proxyHost", host);
+  // System.setProperty("https.proxyPort", port);
+  // }
 
   /**
-   * Compose the Raw Interface that will be sent through the SSLSocket
-   * A notification message is
-   * COMMAND | TOKENLENGTH | DEVICETOKEN | PAYLOADLENGTH | PAYLOAD
-   * or enhanced notification format:
-   * COMMAND | !Identifier! | !Expiry! | TOKENLENGTH| DEVICETOKEN | PAYLOADLENGTH | PAYLOAD
-   * See page 30 of Apple Push Notification Service Programming Guide
-   * @param deviceToken the deviceToken
-   * @param payload the payload
-   * @param message 
+   * Compose the Raw Interface that will be sent through the SSLSocket A
+   * notification message is COMMAND | TOKENLENGTH | DEVICETOKEN | PAYLOADLENGTH
+   * | PAYLOAD or enhanced notification format: COMMAND | !Identifier! |
+   * !Expiry! | TOKENLENGTH| DEVICETOKEN | PAYLOADLENGTH | PAYLOAD See page 30
+   * of Apple Push Notification Service Programming Guide
+   * 
+   * @param deviceToken
+   *          the deviceToken
+   * @param payload
+   *          the payload
+   * @param message
    * @return the byteArray to write to the SSLSocket OutputStream
    * @throws IOException
    */
@@ -532,7 +604,7 @@ public class PushNotificationManager {
     logger.debug("Building Raw message from deviceToken and payload");
 
     /* To test with a corrupted or invalid token, uncomment following line */
-    //deviceToken = deviceToken.substring(0,10);
+    // deviceToken = deviceToken.substring(0,10);
 
     // First convert the deviceToken (in hexa form) to a binary format
     byte[] deviceTokenAsBytes = new byte[deviceToken.length() / 2];
@@ -565,7 +637,8 @@ public class PushNotificationManager {
     }
 
     if (useEnhancedNotificationFormat) {
-      // 4 bytes identifier (which will match any error packet received later on)
+      // 4 bytes identifier (which will match any error packet received later
+      // on)
       bao.write(intTo4ByteArray(identifier));
       message.setIdentifier(identifier);
 
@@ -600,8 +673,7 @@ public class PushNotificationManager {
     byte[] bytes = bao.toByteArray();
 
     if (heavyDebugMode) {
-      try {
-        FileOutputStream outf = new FileOutputStream("apns-message.bytes");
+      try (FileOutputStream outf = new FileOutputStream("apns-message.bytes");) {
         outf.write(bytes);
         outf.close();
       } catch (Exception e) {
@@ -615,6 +687,7 @@ public class PushNotificationManager {
 
   /**
    * Get the number of retry attempts
+   * 
    * @return int
    */
   public int getRetryAttempts() {
@@ -633,6 +706,7 @@ public class PushNotificationManager {
 
   /**
    * Set the number of retry attempts
+   * 
    * @param retryAttempts
    */
   public void setRetryAttempts(int retryAttempts) {
@@ -640,10 +714,12 @@ public class PushNotificationManager {
   }
 
   /**
-   * Sets the DeviceFactory used by this PushNotificationManager.
-   * Usually useful for dependency injection.
-   * @param deviceFactory an object implementing DeviceFactory
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * Sets the DeviceFactory used by this PushNotificationManager. Usually useful
+   * for dependency injection.
+   * 
+   * @param deviceFactory
+   *          an object implementing DeviceFactory
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public void setDeviceFactory(DeviceFactory deviceFactory) {
@@ -652,8 +728,9 @@ public class PushNotificationManager {
 
   /**
    * Returns the DeviceFactory used by this PushNotificationManager.
+   * 
    * @return the DeviceFactory in use
-   * @deprecated The DeviceFactory-based architecture is deprecated. 
+   * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
   public DeviceFactory getDeviceFactory() {
@@ -662,6 +739,7 @@ public class PushNotificationManager {
 
   /**
    * Set the SSL socket timeout to use.
+   * 
    * @param sslSocketTimeout
    */
   public void setSslSocketTimeout(int sslSocketTimeout) {
@@ -670,6 +748,7 @@ public class PushNotificationManager {
 
   /**
    * Get the SSL socket timeout currently in use.
+   * 
    * @return the current SSL socket timeout value.
    */
   public int getSslSocketTimeout() {
@@ -677,7 +756,9 @@ public class PushNotificationManager {
   }
 
   /**
-   * Set whether or not to enable the "trust all server certificates" feature to simplify SSL communications.
+   * Set whether or not to enable the "trust all server certificates" feature to
+   * simplify SSL communications.
+   * 
    * @param trustAllServerCertificates
    */
   public void setTrustAllServerCertificates(boolean trustAllServerCertificates) {
@@ -685,7 +766,9 @@ public class PushNotificationManager {
   }
 
   /**
-   * Get the status of the "trust all server certificates" feature to simplify SSL communications.
+   * Get the status of the "trust all server certificates" feature to simplify
+   * SSL communications.
+   * 
    * @return the status of the "trust all server certificates" feature
    */
   protected boolean isTrustAllServerCertificates() {
@@ -694,6 +777,7 @@ public class PushNotificationManager {
 
   /**
    * Return a new sequential message identifier.
+   * 
    * @return a message identifier unique to this PushNotificationManager
    */
   private int newMessageIdentifier() {
@@ -717,7 +801,9 @@ public class PushNotificationManager {
 
   /**
    * Enable or disable the enhanced notification format (enabled by default).
-   * @param enabled true to enable, false to disable
+   * 
+   * @param enabled
+   *          true to enable, false to disable
    */
   public static void setEnhancedNotificationFormatEnabled(boolean enabled) {
     useEnhancedNotificationFormat = enabled;
@@ -725,6 +811,7 @@ public class PushNotificationManager {
 
   /**
    * Check if the enhanced notification format is currently enabled.
+   * 
    * @return the status of the enhanced notification format
    */
   protected static boolean isEnhancedNotificationFormatEnabled() {
@@ -732,10 +819,14 @@ public class PushNotificationManager {
   }
 
   /**
-   * Enable or disable a special heavy debug mode which causes verbose details to be written to local files.
-   * The last raw APSN message will be written to a "apns-message.bytes" file in the working directory.
-   * A detailed description of local and peer SSL certificates will be written to a "apns-certificatechain.txt" file in the working directory.
-   * @param enabled true to enable, false to disable
+   * Enable or disable a special heavy debug mode which causes verbose details
+   * to be written to local files. The last raw APSN message will be written to
+   * a "apns-message.bytes" file in the working directory. A detailed
+   * description of local and peer SSL certificates will be written to a
+   * "apns-certificatechain.txt" file in the working directory.
+   * 
+   * @param enabled
+   *          true to enable, false to disable
    */
   public static void setHeavyDebugMode(boolean enabled) {
     heavyDebugMode = enabled;
@@ -768,7 +859,7 @@ public class PushNotificationManager {
 
     /* Device token (shortened), Identifier and expiry */
     int l = useEnhancedNotificationFormat ? 4 : 8;
-    alert.append("" + deviceToken.substring(0, l) + "É" + deviceToken.substring(64 - l, 64) + (useEnhancedNotificationFormat ? " [Id:" + identifier + "] " + (payload.getExpiry() <= 0 ? "No-store" : "Exp:T+" + payload.getExpiry()) : "") + "\n");
+    alert.append("" + deviceToken.substring(0, l) + "ï¿½" + deviceToken.substring(64 - l, 64) + (useEnhancedNotificationFormat ? " [Id:" + identifier + "] " + (payload.getExpiry() <= 0 ? "No-store" : "Exp:T+" + payload.getExpiry()) : "") + "\n");
 
     /* Format & encoding */
     alert.append((useEnhancedNotificationFormat ? "Enhanced" : "Simple") + " format / " + payload.getCharacterEncoding() + "" + "");

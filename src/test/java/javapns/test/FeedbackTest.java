@@ -33,6 +33,7 @@ public class FeedbackTest extends TestFoundation {
   }
 
   private FeedbackTest() {
+    // empty
   }
 
   /**

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * Class for reading response packets from an APNS connection.
- * See Apple's documentation on enhanced notification format.
+ * Class for reading response packets from an APNS connection. See Apple's
+ * documentation on enhanced notification format.
  * 
  * @author Sylvain Pedneault
  */
@@ -31,8 +31,8 @@ class ResponsePacketReader {
   /**
    * Read raw response packets from the provided socket.
    * 
-   * Note: this method automatically sets the socket's timeout
-   * to TIMEOUT, so not to block the socket's input stream.
+   * Note: this method automatically sets the socket's timeout to TIMEOUT, so
+   * not to block the socket's input stream.
    * 
    * @param socket
    * @return
@@ -48,18 +48,19 @@ class ResponsePacketReader {
       } catch (Exception e) {
         // swallow
       }
-      InputStream input = socket.getInputStream();
-      while (true) {
-        ResponsePacket packet = readResponsePacketData(input);
-        if (packet != null)
-          responses.add(packet);
-        else
-          break;
+      try (InputStream input = socket.getInputStream();) {
+        while (true) {
+          ResponsePacket packet = readResponsePacketData(input);
+          if (packet != null) responses.add(packet);
+          else break;
+        }
       }
-
     } catch (Exception e) {
-      /* Ignore exception, as we are expecting timeout exceptions because Apple might not reply anything */
-      //System.out.println(e);
+      /*
+       * Ignore exception, as we are expecting timeout exceptions because Apple
+       * might not reply anything
+       */
+      // System.out.println(e);
     }
     /* Reset socket timeout, just in case */
     try {
@@ -67,7 +68,7 @@ class ResponsePacketReader {
     } catch (Exception e) {
       // swallow
     }
-    //System.out.println("Received "+responses.size()+" response packets");
+    // System.out.println("Received "+responses.size()+" response packets");
     return responses;
   }
 
@@ -79,26 +80,19 @@ class ResponsePacketReader {
 
   private static ResponsePacket readResponsePacketData(InputStream input) throws IOException {
     int command = input.read();
-    if (command < 0)
-      return null;
+    if (command < 0) return null;
     int status = input.read();
-    if (status < 0)
-      return null;
+    if (status < 0) return null;
 
     int identifier_byte1 = input.read();
-    if (identifier_byte1 < 0)
-      return null;
+    if (identifier_byte1 < 0) return null;
     int identifier_byte2 = input.read();
-    if (identifier_byte2 < 0)
-      return null;
+    if (identifier_byte2 < 0) return null;
     int identifier_byte3 = input.read();
-    if (identifier_byte3 < 0)
-      return null;
+    if (identifier_byte3 < 0) return null;
     int identifier_byte4 = input.read();
-    if (identifier_byte4 < 0)
-      return null;
+    if (identifier_byte4 < 0) return null;
     int identifier = (identifier_byte1 << 24) + (identifier_byte2 << 16) + (identifier_byte3 << 8) + (identifier_byte4);
     return new ResponsePacket(command, status, identifier);
   }
-
 }
