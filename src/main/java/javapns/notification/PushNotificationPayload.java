@@ -15,6 +15,9 @@ import org.json.JSONObject;
  */
 public class PushNotificationPayload extends Payload {
   /* Maximum total length (serialized) of a payload */
+  private static final int MAXIMUM_PAYLOAD_LENGTH = 2048;
+  
+  @Deprecated
   private static final int MAXIMUM_PAYLOAD_LENGTH = 256;
 
   /**
