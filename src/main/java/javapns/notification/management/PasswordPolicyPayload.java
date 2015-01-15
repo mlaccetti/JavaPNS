@@ -1,13 +1,14 @@
 package javapns.notification.management;
 
-import org.json.*;
+import javapns.json.JSONException;
 
 /**
  * An MDM payload for PasswordPolicy.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class PasswordPolicyPayload extends MobileConfigPayload {
+
   public PasswordPolicyPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName) throws JSONException {
     super(payloadVersion, "com.apple.mobiledevice.passwordpolicy", payloadOrganization, payloadIdentifier, payloadDisplayName);
   }
@@ -55,4 +56,5 @@ public class PasswordPolicyPayload extends MobileConfigPayload {
   public void setMaxGracePeriod(int value) throws JSONException {
     getPayload().put("maxGracePeriod", value);
   }
+
 }

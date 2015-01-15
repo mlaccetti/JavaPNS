@@ -1,14 +1,15 @@
 package javapns.notification.management;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import javapns.json.JSONException;
+import javapns.json.JSONObject;
 
 /**
  * An MDM payload for Email.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class EmailPayload extends MobileConfigPayload {
+
   public EmailPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName, String emailAccountType, String emailAddress, String incomingMailServerAuthentication, String incomingMailServerHostName, String incomingMailServerUsername, String outgoingMailServerAuthentication, String outgoingMailServerHostName, String outgoingMailServerUsername) throws JSONException {
     super(payloadVersion, "com.apple.mail.managed", payloadOrganization, payloadIdentifier, payloadDisplayName);
     JSONObject payload = getPayload();
@@ -57,4 +58,5 @@ public class EmailPayload extends MobileConfigPayload {
   public void setOutgoingMailServerUseSSL(boolean value) throws JSONException {
     getPayload().put("OutgoingMailServerUseSSL", value);
   }
+
 }

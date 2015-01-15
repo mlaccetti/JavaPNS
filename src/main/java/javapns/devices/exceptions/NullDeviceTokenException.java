@@ -2,10 +2,13 @@ package javapns.devices.exceptions;
 
 /**
  * Thrown when the given token is null
- * @author Maxime Peron
  *
+ * @author Maxime Peron
  */
+@Deprecated
+@SuppressWarnings("serial")
 public class NullDeviceTokenException extends Exception {
+
   /* Custom message for this exception */
   private String message;
 
@@ -13,11 +16,12 @@ public class NullDeviceTokenException extends Exception {
    * Constructor
    */
   public NullDeviceTokenException() {
-    this.message = "Client already exists";
+    message = "Client already exists";
   }
 
   /**
    * Constructor with custom message
+   *
    * @param message
    */
   public NullDeviceTokenException(String message) {
@@ -27,8 +31,7 @@ public class NullDeviceTokenException extends Exception {
   /**
    * String representation
    */
-  @Override
   public String toString() {
-    return this.message;
+    return message;
   }
 }

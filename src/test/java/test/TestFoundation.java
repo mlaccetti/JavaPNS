@@ -1,23 +1,22 @@
-package javapns.test;
+package test;
 
 import javapns.communication.KeystoreManager;
 import javapns.notification.AppleNotificationServer;
 import javapns.notification.AppleNotificationServerBasicImpl;
 
 class TestFoundation {
-  static boolean verifyCorrectUsage(Class<?> testClass, String[] argsProvided, String... argsRequired) {
-    if (argsProvided == null)
-      return true;
-    int numberOfArgsRequired = countArgumentsRequired(argsRequired);
+  static boolean verifyCorrectUsage(Class testClass, String[] argsProvided, String... argsRequired) {
+    if (argsProvided == null) return true;
+    int numberOfArgsRequired = TestFoundation.countArgumentsRequired(argsRequired);
     if (argsProvided.length < numberOfArgsRequired) {
-      String message = getUsageMessage(testClass, argsRequired);
+      String message = TestFoundation.getUsageMessage(testClass, argsRequired);
       System.out.println(message);
       return false;
     }
     return true;
   }
 
-  private static String getUsageMessage(Class<?> testClass, String... argsRequired) {
+  private static String getUsageMessage(Class testClass, String... argsRequired) {
     StringBuilder message = new StringBuilder("Usage: ");
     message.append("java -cp \"<required libraries>\" ");
     message.append(testClass.getName());
@@ -39,8 +38,7 @@ class TestFoundation {
   private static int countArgumentsRequired(String... argsRequired) {
     int numberOfArgsRequired = 0;
     for (String argRequired : argsRequired) {
-      if (argRequired.startsWith("["))
-        break;
+      if (argRequired.startsWith("[")) break;
       numberOfArgsRequired++;
     }
     return numberOfArgsRequired;
@@ -48,10 +46,10 @@ class TestFoundation {
 
   /**
    * Validate a keystore reference and print the results to the console.
-   * 
+   *
    * @param keystoreReference a reference to or an actual keystore
-   * @param password password for the keystore
-   * @param production service to use
+   * @param password          password for the keystore
+   * @param production        service to use
    */
   public static void verifyKeystore(Object keystoreReference, String password, boolean production) {
     try {
@@ -72,4 +70,5 @@ class TestFoundation {
       }
     }
   }
+
 }

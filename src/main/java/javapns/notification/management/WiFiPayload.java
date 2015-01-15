@@ -1,14 +1,15 @@
 package javapns.notification.management;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import javapns.json.JSONException;
+import javapns.json.JSONObject;
 
 /**
  * An MDM payload for Wi-Fi.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class WiFiPayload extends MobileConfigPayload {
+
   public WiFiPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName, String SSID_STR, boolean hiddenNetwork, String encryptionType) throws JSONException {
     super(payloadVersion, "com.apple.wifi.managed", payloadOrganization, payloadIdentifier, payloadDisplayName);
     JSONObject payload = getPayload();
@@ -26,4 +27,5 @@ public class WiFiPayload extends MobileConfigPayload {
     getPayload().put("EAPClientConfiguration", object);
     return object;
   }
+
 }

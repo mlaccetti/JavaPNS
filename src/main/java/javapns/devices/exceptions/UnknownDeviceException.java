@@ -2,9 +2,10 @@ package javapns.devices.exceptions;
 
 /**
  * Thrown when we try to retrieve a device that doesn't exist
- * @author Maxime Peron
  *
+ * @author Maxime Peron
  */
+@Deprecated
 @SuppressWarnings("serial")
 public class UnknownDeviceException extends Exception {
 
@@ -15,11 +16,12 @@ public class UnknownDeviceException extends Exception {
    * Constructor
    */
   public UnknownDeviceException() {
-    this.message = "Unknown client";
+    message = "Unknown client";
   }
 
   /**
    * Constructor with custom message
+   *
    * @param message
    */
   public UnknownDeviceException(String message) {
@@ -29,8 +31,7 @@ public class UnknownDeviceException extends Exception {
   /**
    * String representation
    */
-  @Override
   public String toString() {
-    return this.message;
+    return message;
   }
 }

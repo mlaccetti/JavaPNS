@@ -1,11 +1,11 @@
 package javapns.notification.management;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import javapns.json.JSONException;
+import javapns.json.JSONObject;
 
 /**
  * An MDM payload for CalDAV.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class CalDAVPayload extends MobileConfigPayload {
@@ -33,4 +33,5 @@ public class CalDAVPayload extends MobileConfigPayload {
   public void setCalDAVPrincipalURL(String value) throws JSONException {
     getPayload().put("CalDAVPrincipalURL", value);
   }
+
 }

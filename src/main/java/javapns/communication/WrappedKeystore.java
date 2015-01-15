@@ -6,10 +6,11 @@ import java.security.KeyStore;
 
 /**
  * Special wrapper for a KeyStore.
- * 
+ *
  * @author Sylvain Pedneault
  */
 class WrappedKeystore extends InputStream {
+
   private final KeyStore keystore;
 
   public WrappedKeystore(KeyStore keystore) {
@@ -24,4 +25,5 @@ class WrappedKeystore extends InputStream {
   public KeyStore getKeystore() {
     return keystore;
   }
+
 }

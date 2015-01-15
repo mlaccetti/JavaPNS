@@ -1,16 +1,11 @@
-package javapns.test;
-
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+package test;
 
 import javapns.Push;
 import javapns.communication.exceptions.CommunicationException;
 import javapns.communication.exceptions.KeystoreException;
 import javapns.devices.Device;
 import javapns.devices.implementations.basic.BasicDevice;
+import javapns.json.JSONException;
 import javapns.notification.AppleNotificationServer;
 import javapns.notification.AppleNotificationServerBasicImpl;
 import javapns.notification.NewsstandNotificationPayload;
@@ -24,36 +19,40 @@ import javapns.notification.transmission.NotificationThread;
 import javapns.notification.transmission.NotificationThreads;
 import javapns.notification.transmission.PushQueue;
 
-import org.json.JSONException;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Specific test cases intended for the project's developers.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class SpecificNotificationTests extends TestFoundation {
 
+  private SpecificNotificationTests() {
+  }
+
   /**
    * Execute this class from the command line to run tests.
-   * 
+   *
    * @param args
    */
   public static void main(String[] args) {
 
-    /* Verify that the test is being invoked */
-    if (!verifyCorrectUsage(NotificationTest.class, args, "keystore-path", "keystore-password", "device-token", "[production|sandbox]", "[test-name]")) return;
+		/* Verify that the test is being invoked  */
+    if (!TestFoundation.verifyCorrectUsage(NotificationTest.class, args, "keystore-path", "keystore-password", "device-token", "[production|sandbox]", "[test-name]")) return;
 
-    /* Push an alert */
-    runTest(args);
-  }
-
-  private SpecificNotificationTests() {
-    // empty
+		/* Push an alert */
+    SpecificNotificationTests.runTest(args);
   }
 
   /**
    * Push a test notification to a device, given command-line parameters.
-   * 
+   *
    * @param args
    */
   private static void runTest(String[] args) {
@@ -61,6 +60,7 @@ public class SpecificNotificationTests extends TestFoundation {
     String password = args[1];
     String token = args[2];
     boolean production = args.length >= 4 ? args[3].equalsIgnoreCase("production") : false;
+    boolean simulation = args.length >= 4 ? args[3].equalsIgnoreCase("simulation") : false;
 
     String testName = args.length >= 5 ? args[4] : null;
     if (testName == null || testName.length() == 0) testName = "default";
@@ -74,53 +74,44 @@ public class SpecificNotificationTests extends TestFoundation {
     }
   }
 
-  @SuppressWarnings("unused")
   private static void test_PushHelloWorld(String keystore, String password, String token, boolean production) throws CommunicationException, KeystoreException {
     List<PushedNotification> notifications = Push.alert("Hello World!", keystore, password, production, token);
     NotificationTest.printPushedNotifications(notifications);
   }
 
-  @SuppressWarnings("unused")
   private static void test_Issue74(String keystore, String password, String token, boolean production) {
     try {
       System.out.println("");
       System.out.println("TESTING 257-BYTES PAYLOAD WITH SIZE ESTIMATION ENABLED");
-      /*
-       * Expected result: PayloadMaxSizeProbablyExceededException when the alert
-       * is added to the payload
-       */
-      pushSpecificPayloadSize(keystore, password, token, production, true, 257);
+      /* Expected result: PayloadMaxSizeProbablyExceededException when the alert is added to the payload */
+      SpecificNotificationTests.pushSpecificPayloadSize(keystore, password, token, production, true, 257);
     } catch (Exception e) {
       e.printStackTrace();
     }
     try {
       System.out.println("");
       System.out.println("TESTING 257-BYTES PAYLOAD WITH SIZE ESTIMATION DISABLED");
-      /*
-       * Expected result: PayloadMaxSizeExceededException when the payload is
-       * pushed
-       */
-      pushSpecificPayloadSize(keystore, password, token, production, false, 257);
+			/* Expected result: PayloadMaxSizeExceededException when the payload is pushed */
+      SpecificNotificationTests.pushSpecificPayloadSize(keystore, password, token, production, false, 257);
     } catch (Exception e) {
       e.printStackTrace();
     }
     try {
       System.out.println("");
       System.out.println("TESTING 256-BYTES PAYLOAD");
-      /* Expected result: no exception */
-      pushSpecificPayloadSize(keystore, password, token, production, false, 256);
+			/* Expected result: no exception */
+      SpecificNotificationTests.pushSpecificPayloadSize(keystore, password, token, production, false, 256);
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  @SuppressWarnings("unused")
   private static void test_Issue75(String keystore, String password, String token, boolean production) {
     try {
       System.out.println("");
       System.out.println("TESTING 257-BYTES PAYLOAD WITH SIZE ESTIMATION ENABLED");
       NewsstandNotificationPayload payload = NewsstandNotificationPayload.contentAvailable();
-      debugPayload(payload);
+      SpecificNotificationTests.debugPayload(payload);
 
       List<PushedNotification> notifications = Push.payload(payload, keystore, password, production, token);
       NotificationTest.printPushedNotifications(notifications);
@@ -129,7 +120,6 @@ public class SpecificNotificationTests extends TestFoundation {
     }
   }
 
-  @SuppressWarnings("unused")
   private static void test_Issue82(String keystore, String password, String token, boolean production) {
     try {
       System.out.println("");
@@ -152,53 +142,49 @@ public class SpecificNotificationTests extends TestFoundation {
     }
   }
 
-  @SuppressWarnings("unused")
-  private static void test_Issue87(String keystore, String password, String token) {
+  private static void test_Issue87(String keystore, String password, String token, boolean production) {
     try {
       System.out.println("TESTING ISSUES #87 AND #88");
 
-      try (InputStream ks = new BufferedInputStream(new FileInputStream(keystore));) {
-        PushQueue queue = Push.queue(ks, password, false, 3);
-        queue.start();
-        queue.add(PushNotificationPayload.test(), token);
-        queue.add(PushNotificationPayload.test(), token);
-        queue.add(PushNotificationPayload.test(), token);
-        queue.add(PushNotificationPayload.test(), token);
-        Thread.sleep(10000);
-        List<Exception> criticalExceptions = queue.getCriticalExceptions();
-        for (Exception exception : criticalExceptions) {
-          exception.printStackTrace();
-        }
-        Thread.sleep(10000);
+      InputStream ks = new BufferedInputStream(new FileInputStream(keystore));
+      PushQueue queue = Push.queue(ks, password, false, 3);
+      queue.start();
+      queue.add(PushNotificationPayload.test(), token);
+      queue.add(PushNotificationPayload.test(), token);
+      queue.add(PushNotificationPayload.test(), token);
+      queue.add(PushNotificationPayload.test(), token);
+//			Thread.sleep(10000);
+//			List<Exception> criticalExceptions = queue.getCriticalExceptions();
+//			for (Exception exception : criticalExceptions) {
+//				exception.printStackTrace();
+//			}
+      Thread.sleep(10000);
 
-        List<PushedNotification> pushedNotifications = queue.getPushedNotifications();
-        NotificationTest.printPushedNotifications("BEFORE CLEAR:", pushedNotifications);
+      List<PushedNotification> pushedNotifications = queue.getPushedNotifications(true);
+      NotificationTest.printPushedNotifications("BEFORE CLEAR:", pushedNotifications);
+//
+//			queue.clearPushedNotifications();
+//
+//			pushedNotifications = queue.getPushedNotifications();
+      NotificationTest.printPushedNotifications("AFTER CLEAR:", queue.getPushedNotifications(true));
 
-        queue.clearPushedNotifications();
+      Thread.sleep(50000);
+      System.out.println("ISSUES #87 AND #88 TESTED");
 
-        pushedNotifications = queue.getPushedNotifications();
-        NotificationTest.printPushedNotifications("AFTER CLEAR:", pushedNotifications);
-
-        Thread.sleep(50000);
-        System.out.println("ISSUES #87 AND #88 TESTED");
-      }
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  @SuppressWarnings("unused")
-  private static void test_Issue88(String keystore, String password, String token) {
+  private static void test_Issue88(String keystore, String password, String token, boolean production) {
     try {
       System.out.println("TESTING ISSUES #88");
 
-      // List<String> devices = new Vector<String>();
-      // for (int i = 0; i < 5; i++) {
-      // devices.add(token);
-      // }
-      // PushedNotifications notifications =
-      // Push.payload(PushNotificationPayload.test(), keystore, password, false,
-      // devices);
+      //			List<String> devices = new Vector<String>();
+      //			for (int i = 0; i < 5; i++) {
+      //				devices.add(token);
+      //			}
+      //			PushedNotifications notifications = Push.payload(PushNotificationPayload.test(), keystore, password, false, devices);
       PushQueue queue = Push.queue(keystore, password, false, 1);
       queue.start();
       queue.add(PushNotificationPayload.test(), token);
@@ -207,7 +193,7 @@ public class SpecificNotificationTests extends TestFoundation {
       queue.add(PushNotificationPayload.test(), token);
       Thread.sleep(10000);
 
-      PushedNotifications notifications = queue.getPushedNotifications();
+      PushedNotifications notifications = queue.getPushedNotifications(true);
       NotificationTest.printPushedNotifications(notifications);
 
       Thread.sleep(5000);
@@ -218,7 +204,6 @@ public class SpecificNotificationTests extends TestFoundation {
     }
   }
 
-  @SuppressWarnings("unused")
   private static void test_Issue99(String keystore, String password, String token, boolean production) {
     try {
       System.out.println("");
@@ -226,7 +211,7 @@ public class SpecificNotificationTests extends TestFoundation {
       PushNotificationPayload payload = PushNotificationPayload.complex();
       payload.addCustomAlertBody("Hello World!");
       payload.addCustomAlertActionLocKey(null);
-      debugPayload(payload);
+      SpecificNotificationTests.debugPayload(payload);
 
       List<PushedNotification> notifications = Push.payload(payload, keystore, password, production, token);
       NotificationTest.printPushedNotifications(notifications);
@@ -236,7 +221,6 @@ public class SpecificNotificationTests extends TestFoundation {
     }
   }
 
-  @SuppressWarnings("unused")
   private static void test_Issue102(String keystore, String password, String token, boolean production) {
     try {
       System.out.println("");
@@ -252,11 +236,11 @@ public class SpecificNotificationTests extends TestFoundation {
         System.out.println("Creating PushNotificationManager and AppleNotificationServer");
         AppleNotificationServer server = new AppleNotificationServerBasicImpl(keystore, password, production);
         System.out.println("Creating payload (simulation mode)");
-        // Payload payload = PushNotificationPayload.alert("Hello World!");
+        //Payload payload = PushNotificationPayload.alert("Hello World!");
         Payload payload = PushNotificationPayload.test();
 
         System.out.println("Generating " + devices + " fake devices");
-        List<Device> deviceList = new ArrayList<>(devices);
+        List<Device> deviceList = new ArrayList<Device>(devices);
         for (int i = 0; i < devices; i++) {
           String tokenToUse = token;
           if (tokenToUse == null || tokenToUse.length() != 64) {
@@ -267,9 +251,9 @@ public class SpecificNotificationTests extends TestFoundation {
         deviceList.add(new BasicDevice(realToken));
         System.out.println("Creating " + threads + " notification threads");
         NotificationThreads work = new NotificationThreads(server, simulation ? payload.asSimulationOnly() : payload, deviceList, threads);
-        // work.setMaxNotificationsPerConnection(10000);
-        // System.out.println("Linking notification work debugging listener");
-        // work.setListener(DEBUGGING_PROGRESS_LISTENER);
+        //work.setMaxNotificationsPerConnection(10000);
+        //System.out.println("Linking notification work debugging listener");
+        //work.setListener(DEBUGGING_PROGRESS_LISTENER);
 
         System.out.println("Starting all threads...");
         long timestamp1 = System.currentTimeMillis();
@@ -279,22 +263,84 @@ public class SpecificNotificationTests extends TestFoundation {
         long timestamp2 = System.currentTimeMillis();
         System.out.println("All threads finished in " + (timestamp2 - timestamp1) + " milliseconds");
 
-        NotificationTest.printPushedNotifications(work.getSuccessfulNotifications());
+        NotificationTest.printPushedNotifications(work.getPushedNotifications(true).getSuccessfulNotifications());
 
       } catch (Exception e) {
         e.printStackTrace();
       }
 
-      // List<PushedNotification> notifications = Push.payload(payload,
-      // keystore, password, production, token);
-      // NotificationTest.printPushedNotifications(notifications);
+      //			List<PushedNotification> notifications = Push.payload(payload, keystore, password, production, token);
+      //			NotificationTest.printPushedNotifications(notifications);
       System.out.println("ISSUE #102 TESTED");
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  @SuppressWarnings("unused")
+  private static void test_Issue109(String keystore, String password, String token, boolean production) {
+    try {
+      System.out.println("");
+      System.out.println("TESTING ISSUE #109");
+
+      PushNotificationPayload payload = PushNotificationPayload.test();
+      List<String> devices = new Vector<String>();
+      devices.add(token);
+      devices.add(token);
+      devices.add(token);
+
+      List<PushedNotification> notifications = Push.payload(payload, keystore, password, production, 30, devices);
+      NotificationTest.printPushedNotifications(notifications);
+
+      System.out.println("Notifications sent: " + notifications.size());
+
+      System.out.println("ISSUE #109 TESTED");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static void test_Issue116(String keystore, String password, String token, boolean production) {
+    try {
+      System.out.println("");
+      System.out.println("TESTING ISSUE #116");
+
+      PushNotificationPayload payload = PushNotificationPayload.test();
+      List<String> devices = new Vector<String>(); // empty list of devices
+      int threads = 30;
+
+      List<PushedNotification> notifications = Push.payload(payload, keystore, password, production, 30, devices);
+      NotificationTest.printPushedNotifications(notifications);
+
+      System.out.println("Notifications sent: " + notifications.size());
+
+      System.out.println("ISSUE #109 TESTED");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static void test_Issue115(String keystore, String password, String token, boolean production) {
+    try {
+      System.out.println("TESTING ISSUES #115");
+      PushQueue queue = Push.queue(keystore, password, false, 10);
+      queue.start();
+      queue.add(PushNotificationPayload.test(), token);
+      queue.add(PushNotificationPayload.test(), token);
+      queue.add(PushNotificationPayload.test(), token);
+      queue.add(PushNotificationPayload.test(), token);
+      Thread.sleep(10000);
+
+//			PushedNotifications notifications = queue.getPushedNotifications();
+//			NotificationTest.printPushedNotifications(notifications);
+//
+      Thread.sleep(5000);
+      System.out.println("ISSUES #115 TESTED");
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   private static void test_ThreadPoolFeature(String keystore, String password, String token, boolean production) throws Exception {
     try {
       System.out.println("");
@@ -331,12 +377,12 @@ public class SpecificNotificationTests extends TestFoundation {
     String alertMessage = buf.toString();
     PushNotificationPayload payload = PushNotificationPayload.complex();
     if (checkWhenAdding) payload.setPayloadSizeEstimatedWhenAdding(true);
-    debugPayload(payload);
+    SpecificNotificationTests.debugPayload(payload);
 
     boolean estimateValid = payload.isEstimatedPayloadSizeAllowedAfterAdding("alert", alertMessage);
     System.out.println("Payload size estimated to be allowed: " + (estimateValid ? "yes" : "no"));
     payload.addAlert(alertMessage);
-    debugPayload(payload);
+    SpecificNotificationTests.debugPayload(payload);
 
     List<PushedNotification> notifications = Push.payload(payload, keystore, password, production, token);
     NotificationTest.printPushedNotifications(notifications);
@@ -347,14 +393,13 @@ public class SpecificNotificationTests extends TestFoundation {
     try {
       System.out.println("Payload size: " + payload.getPayloadSize());
     } catch (Exception e) {
-      // swallow
     }
     try {
       System.out.println("Payload representation: " + payload);
     } catch (Exception e) {
-      // swallow
     }
     System.out.println(payload.isPayloadSizeEstimatedWhenAdding() ? "Payload size is estimated when adding properties" : "Payload size is only checked when it is complete");
     System.out.println("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
   }
+
 }

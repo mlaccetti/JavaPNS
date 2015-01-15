@@ -1,16 +1,17 @@
 package javapns.notification.management;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import javapns.json.JSONException;
+import javapns.json.JSONObject;
 
 /**
  * An MDM payload for VPN.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class VPNPayload extends MobileConfigPayload {
-  public static final String VPNTYPE_L2TP = "L2TP";
-  public static final String VPNTYPE_PPTP = "PPTP";
+
+  public static final String VPNTYPE_L2TP  = "L2TP";
+  public static final String VPNTYPE_PPTP  = "PPTP";
   public static final String VPNTYPE_IPSec = "IPSec";
 
   public VPNPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName, String userDefinedName, boolean overridePrimary, String vpnType) throws JSONException {
@@ -32,4 +33,5 @@ public class VPNPayload extends MobileConfigPayload {
     getPayload().put("IPSec", object);
     return object;
   }
+
 }

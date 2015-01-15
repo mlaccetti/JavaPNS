@@ -1,13 +1,14 @@
 package javapns.notification.management;
 
-import org.json.JSONException;
+import javapns.json.JSONException;
 
 /**
  * An MDM payload for Restrictions.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class RestrictionsPayload extends MobileConfigPayload {
+
   public RestrictionsPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName) throws JSONException {
     super(payloadVersion, "com.apple.applicationaccess", payloadOrganization, payloadIdentifier, payloadDisplayName);
   }
@@ -39,4 +40,5 @@ public class RestrictionsPayload extends MobileConfigPayload {
   public void setAllowSafari(boolean value) throws JSONException {
     getPayload().put("allowSafari", value);
   }
+
 }

@@ -2,10 +2,11 @@ package javapns.notification;
 
 /**
  * A response packet, as described in Apple's enhanced notification format.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class ResponsePacket {
+
   private int command;
   private int status;
   private int identifier;
@@ -27,13 +28,12 @@ public class ResponsePacket {
         notification.setResponse(this);
       }
     } catch (Exception e) {
-      // empty
     }
   }
 
   /**
    * Returns the response's command number.  It should be 8 for all error responses.
-   *  
+   *
    * @return the response's command number (which should be 8)
    */
   public int getCommand() {
@@ -46,6 +46,7 @@ public class ResponsePacket {
 
   /**
    * Determine if this packet is an error-response packet.
+   *
    * @return true if command number is 8, false otherwise
    */
   public boolean isErrorResponsePacket() {
@@ -54,6 +55,7 @@ public class ResponsePacket {
 
   /**
    * Returns the response's status code <i>(see getMessage() for a human-friendly status message instead)</i>.
+   *
    * @return the response's status code
    */
   public int getStatus() {
@@ -67,17 +69,17 @@ public class ResponsePacket {
   /**
    * Determine if this packet is a valid error-response packet.
    * To be valid, it must be an error-response packet (command number 8) and it must have a non-zero status code.
+   *
    * @return true if command number is 8 and status code is not 0, false otherwise
    */
   public boolean isValidErrorMessage() {
-    if (!isErrorResponsePacket())
-      return false;
+    if (!isErrorResponsePacket()) return false;
     return status != 0;
   }
 
   /**
    * Returns the response's identifier, which matches the pushed notification's.
-   * 
+   *
    * @return the response's identifier
    */
   public int getIdentifier() {
@@ -90,34 +92,25 @@ public class ResponsePacket {
 
   /**
    * Returns a humand-friendly error message, as documented by Apple.
-   * 
+   *
    * @return a humand-friendly error message
    */
   public String getMessage() {
     if (command == 8) {
       String prefix = "APNS: [" + identifier + "] "; //APNS ERROR FOR MESSAGE ID #" + identifier + ": ";
-      if (status == 0)
-        return prefix + "No errors encountered";
-      if (status == 1)
-        return prefix + "Processing error";
-      if (status == 2)
-        return prefix + "Missing device token";
-      if (status == 3)
-        return prefix + "Missing topic";
-      if (status == 4)
-        return prefix + "Missing payload";
-      if (status == 5)
-        return prefix + "Invalid token size";
-      if (status == 6)
-        return prefix + "Invalid topic size";
-      if (status == 7)
-        return prefix + "Invalid payload size";
-      if (status == 8)
-        return prefix + "Invalid token";
-      if (status == 255)
-        return prefix + "None (unknown)";
+      if (status == 0) return prefix + "No errors encountered";
+      if (status == 1) return prefix + "Processing error";
+      if (status == 2) return prefix + "Missing device token";
+      if (status == 3) return prefix + "Missing topic";
+      if (status == 4) return prefix + "Missing payload";
+      if (status == 5) return prefix + "Invalid token size";
+      if (status == 6) return prefix + "Invalid topic size";
+      if (status == 7) return prefix + "Invalid payload size";
+      if (status == 8) return prefix + "Invalid token";
+      if (status == 255) return prefix + "None (unknown)";
       return prefix + "Undocumented status code: " + status;
     }
     return "APNS: Undocumented response command: " + command;
   }
+
 }

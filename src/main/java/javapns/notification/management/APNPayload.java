@@ -1,13 +1,13 @@
 package javapns.notification.management;
 
-import java.util.Map;
+import javapns.json.JSONException;
+import javapns.json.JSONObject;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.Map;
 
 /**
  * An MDM payload for APN (Access Point Name).
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class APNPayload extends MobileConfigPayload {
@@ -34,4 +34,5 @@ public class APNPayload extends MobileConfigPayload {
   public void setProxyPort(int value) throws JSONException {
     getPayload().put("proxyPort", value);
   }
+
 }

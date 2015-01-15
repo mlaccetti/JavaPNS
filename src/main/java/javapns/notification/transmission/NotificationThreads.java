@@ -1,8 +1,5 @@
 package javapns.notification.transmission;
 
-import java.util.List;
-import java.util.Vector;
-
 import javapns.devices.Device;
 import javapns.devices.exceptions.InvalidDeviceTokenFormatException;
 import javapns.notification.AppleNotificationServer;
@@ -11,67 +8,74 @@ import javapns.notification.Payload;
 import javapns.notification.PayloadPerDevice;
 import javapns.notification.PushNotificationManager;
 import javapns.notification.PushedNotifications;
+import javapns.notification.transmission.NotificationThread.MODE;
+
+import java.util.List;
+import java.util.Vector;
 
 /**
  * <h1>Pushes a payload to a large number of devices using multiple threads</h1>
- * 
+ * <p/>
  * <p>The list of devices is spread evenly into multiple {@link javapns.notification.transmission.NotificationThread}s.</p>
- * 
+ * <p/>
  * <p>Usage: once a NotificationThreads is created, invoke {@code start()} to start all {@link javapns.notification.transmission.NotificationThread} threads.</p>
  * <p>You can provide a {@link javapns.notification.transmission.NotificationProgressListener} to receive events about the work being done.</p>
-
+ *
  * @author Sylvain Pedneault
- * @see NotificationThread.MODE
+ * @see MODE
  * @see NotificationThread
  */
 public class NotificationThreads extends ThreadGroup implements PushQueue {
-  private static final long DEFAULT_DELAY_BETWEEN_THREADS = 500; // the number of milliseconds to wait between each thread startup
-  private List<NotificationThread> threads = new Vector<>();
+
+  private static final long                     DEFAULT_DELAY_BETWEEN_THREADS = 500; // the number of milliseconds to wait between each thread startup
+  private              List<NotificationThread> threads                       = new Vector<NotificationThread>();
   private NotificationProgressListener listener;
-  private boolean started = false;
-  private int threadsRunning = 0;
-  private int nextThread = 0;
-  private Object finishPoint = new Object();
-  private long delayBetweenThreads = DEFAULT_DELAY_BETWEEN_THREADS;
+  private boolean started;
+  private int     threadsRunning;
+  private int     nextThread;
+  private Object finishPoint         = new Object();
+  private long   delayBetweenThreads = NotificationThreads.DEFAULT_DELAY_BETWEEN_THREADS;
 
   /**
    * Create the specified number of notification threads and spread the devices evenly between the threads.
-   * 
-   * @param server the server to push to
-   * @param payload the payload to push
-   * @param devices a very large list of devices
+   *
+   * @param server          the server to push to
+   * @param payload         the payload to push
+   * @param devices         a very large list of devices
    * @param numberOfThreads the number of threads to create to share the work
    */
   public NotificationThreads(AppleNotificationServer server, Payload payload, List<Device> devices, int numberOfThreads) {
     super("javapns notification threads (" + numberOfThreads + " threads)");
-    for (List<Device> deviceGroup : makeGroups(devices, numberOfThreads))
+    if (devices.size() < numberOfThreads) numberOfThreads = devices.size();
+    for (List deviceGroup : NotificationThreads.makeGroups(devices, numberOfThreads))
       threads.add(new NotificationThread(this, new PushNotificationManager(), server, payload, deviceGroup));
   }
 
   /**
    * Create the specified number of notification threads and spread the messages evenly between the threads.
-   * 
-   * @param server the server to push to
-   * @param messages a very large list of payload/device pairs
+   *
+   * @param server          the server to push to
+   * @param messages        a very large list of payload/device pairs
    * @param numberOfThreads the number of threads to create to share the work
    */
   public NotificationThreads(AppleNotificationServer server, List<PayloadPerDevice> messages, int numberOfThreads) {
     super("javapns notification threads (" + numberOfThreads + " threads)");
-    for (List<PayloadPerDevice> deviceGroup : makeGroups(messages, numberOfThreads))
+    if (messages.size() < numberOfThreads) numberOfThreads = messages.size();
+    for (List deviceGroup : NotificationThreads.makeGroups(messages, numberOfThreads))
       threads.add(new NotificationThread(this, new PushNotificationManager(), server, deviceGroup));
   }
 
   /**
    * Create the specified number of notification threads and spread the devices evenly between the threads.
    * Internally, this constructor uses a AppleNotificationServerBasicImpl to encapsulate the provided keystore, password and production parameters.
-   * 
-   * @param keystore the keystore to use (can be a File, an InputStream, a String for a file path, or a byte[] array)
-   * @param password the keystore's password
-   * @param production true to use Apple's production servers, false to use the sandbox
-   * @param payload the payload to push
-   * @param devices a very large list of devices
+   *
+   * @param keystore        the keystore to use (can be a File, an InputStream, a String for a file path, or a byte[] array)
+   * @param password        the keystore's password
+   * @param production      true to use Apple's production servers, false to use the sandbox
+   * @param payload         the payload to push
+   * @param devices         a very large list of devices
    * @param numberOfThreads the number of threads to create to share the work
-   * @throws Exception 
+   * @throws Exception
    */
   public NotificationThreads(Object keystore, String password, boolean production, Payload payload, List<Device> devices, int numberOfThreads) throws Exception {
     this(new AppleNotificationServerBasicImpl(keystore, password, production), payload, devices, numberOfThreads);
@@ -79,16 +83,17 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Spread the devices evenly between the provided threads.
-   * 
-   * @param server the server to push to
+   *
+   * @param server  the server to push to
    * @param payload the payload to push
    * @param devices a very large list of devices
    * @param threads a list of pre-built threads
    */
+  @SuppressWarnings("unchecked")
   public NotificationThreads(AppleNotificationServer server, Payload payload, List<Device> devices, List<NotificationThread> threads) {
     super("javapns notification threads (" + threads.size() + " threads)");
     this.threads = threads;
-    List<List<Device>> groups = makeGroups(devices, threads.size());
+    List<List> groups = NotificationThreads.makeGroups(devices, threads.size());
     for (int i = 0; i < groups.size(); i++)
       threads.get(i).setDevices(groups.get(i));
   }
@@ -96,14 +101,14 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
   /**
    * Spread the devices evenly between the provided threads.
    * Internally, this constructor uses a AppleNotificationServerBasicImpl to encapsulate the provided keystore, password and production parameters.
-   * 
-   * @param keystore the keystore to use (can be a File, an InputStream, a String for a file path, or a byte[] array)
-   * @param password the keystore's password
+   *
+   * @param keystore   the keystore to use (can be a File, an InputStream, a String for a file path, or a byte[] array)
+   * @param password   the keystore's password
    * @param production true to use Apple's production servers, false to use the sandbox
-   * @param payload the payload to push
-   * @param devices a very large list of devices
-   * @param threads a list of pre-built threads
-   * @throws Exception 
+   * @param payload    the payload to push
+   * @param devices    a very large list of devices
+   * @param threads    a list of pre-built threads
+   * @throws Exception
    */
   public NotificationThreads(Object keystore, String password, boolean production, Payload payload, List<Device> devices, List<NotificationThread> threads) throws Exception {
     this(new AppleNotificationServerBasicImpl(keystore, password, production), payload, devices, threads);
@@ -111,8 +116,8 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Use the provided threads which should already each have their group of devices to work with.
-   * 
-   * @param server the server to push to
+   *
+   * @param server  the server to push to
    * @param payload the payload to push
    * @param threads a list of pre-built threads
    */
@@ -124,13 +129,13 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
   /**
    * Use the provided threads which should already each have their group of devices to work with.
    * Internally, this constructor uses a AppleNotificationServerBasicImpl to encapsulate the provided keystore, password and production parameters.
-   * 
-   * @param keystore the keystore to use (can be a File, an InputStream, a String for a file path, or a byte[] array)
-   * @param password the keystore's password
+   *
+   * @param keystore   the keystore to use (can be a File, an InputStream, a String for a file path, or a byte[] array)
+   * @param password   the keystore's password
    * @param production true to use Apple's production servers, false to use the sandbox
-   * @param payload the payload to push
-   * @param threads a list of pre-built threads
-   * @throws Exception 
+   * @param payload    the payload to push
+   * @param threads    a list of pre-built threads
+   * @throws Exception
    */
   public NotificationThreads(Object keystore, String password, boolean production, Payload payload, List<NotificationThread> threads) throws Exception {
     this(new AppleNotificationServerBasicImpl(keystore, password, production), payload, threads);
@@ -138,8 +143,8 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Create a pool of notification threads in QUEUE mode.
-   * 
-   * @param server the server to push to
+   *
+   * @param server          the server to push to
    * @param numberOfThreads the number of threads to create in the pool
    */
   public NotificationThreads(AppleNotificationServer server, int numberOfThreads) {
@@ -149,17 +154,41 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
     }
   }
 
-  @Override
+  /**
+   * Create groups of devices or payload/device pairs ready to be dispatched to worker threads.
+   *
+   * @param devices a large list of devices
+   * @param threads the number of threads to group devices for
+   * @return
+   */
+  private static List<List> makeGroups(List objects, int threads) {
+    if (objects == null || objects.size() <= 0) throw new IllegalArgumentException("Device list is empty, resulting in no threads being created.");
+    List<List> groups = new Vector<List>(threads);
+    int total = objects.size();
+    int devicesPerThread = total / threads;
+    if (total % threads > 0) devicesPerThread++;
+    //System.out.println("Making "+threads+" groups of "+devicesPerThread+" devices out of "+total+" devices in total");
+    for (int i = 0; i < threads; i++) {
+      int firstObject = i * devicesPerThread;
+      if (firstObject >= total) break;
+      int lastObject = firstObject + devicesPerThread - 1;
+      if (lastObject >= total) lastObject = total - 1;
+      lastObject++;
+      //System.out.println("Grouping together "+(lastDevice-firstDevice)+" devices (#"+firstDevice+" to "+lastDevice+")");
+      List threadObjects = objects.subList(firstObject, lastObject);
+      groups.add(threadObjects);
+    }
+    return groups;
+  }
+
   public PushQueue add(Payload payload, String token) throws InvalidDeviceTokenFormatException {
     return add(new PayloadPerDevice(payload, token));
   }
 
-  @Override
   public PushQueue add(Payload payload, Device device) {
     return add(new PayloadPerDevice(payload, device));
   }
 
-  @Override
   public PushQueue add(PayloadPerDevice message) {
     start(); // just in case start() was not invoked before
     NotificationThread targetThread = getNextAvailableThread();
@@ -169,73 +198,39 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Get the next available thread.
-   * 
+   *
    * @return a thread potentially available to work
    */
   protected NotificationThread getNextAvailableThread() {
     for (int i = 0; i < threads.size(); i++) {
       NotificationThread thread = getNextThread();
       boolean busy = thread.isBusy();
-      if (!busy)
-        return thread;
+      if (!busy) return thread;
     }
     return getNextThread(); /* All threads are busy, return the next one regardless of its busy status */
   }
 
   /**
    * Get the next thread to use.
-   * 
+   *
    * @return a thread
    */
   protected synchronized NotificationThread getNextThread() {
-    if (nextThread >= threads.size())
-      nextThread = 0;
+    if (nextThread >= threads.size()) nextThread = 0;
     NotificationThread thread = threads.get(nextThread++);
     return thread;
   }
 
   /**
-   * Create groups of devices or payload/device pairs ready to be dispatched to worker threads.
-   * 
-   * @param devices a large list of devices
-   * @param threads the number of threads to group devices for
-   * @return
-   */
-  private static <V> List<List<V>> makeGroups(List<V> objects, int threads) {
-    List<List<V>> groups = new Vector<>(threads);
-    int total = objects.size();
-    int devicesPerThread = (total / threads);
-    if (total % threads > 0)
-      devicesPerThread++;
-    //System.out.println("Making "+threads+" groups of "+devicesPerThread+" devices out of "+total+" devices in total");
-    for (int i = 0; i < threads; i++) {
-      int firstObject = i * devicesPerThread;
-      if (firstObject >= total)
-        break;
-      int lastObject = firstObject + devicesPerThread - 1;
-      if (lastObject >= total)
-        lastObject = total - 1;
-      lastObject++;
-      //System.out.println("Grouping together "+(lastDevice-firstDevice)+" devices (#"+firstDevice+" to "+lastDevice+")");
-      List<V> threadObjects = objects.subList(firstObject, lastObject);
-      groups.add(threadObjects);
-    }
-    return groups;
-  }
-
-  /**
    * Start all notification threads.
-   * 
+   * <p/>
    * This method returns immediately, as all threads start working on their own.
    * To wait until all threads are finished, use the waitForAllThreads() method.
    */
-  @Override
   public synchronized NotificationThreads start() {
-    if (started)
-      return this;
+    if (started) return this;
     started = true;
-    if (threadsRunning > 0)
-      throw new IllegalStateException("NotificationThreads already started (" + threadsRunning + " still running)");
+    if (threadsRunning > 0) throw new IllegalStateException("NotificationThreads already started (" + threadsRunning + " still running)");
     assignThreadsNumbers();
     for (NotificationThread thread : threads) {
       threadsRunning++;
@@ -244,20 +239,18 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
         /* Wait for a specific number of milliseconds to elapse so that not all threads start simultaenously. */
         Thread.sleep(delayBetweenThreads);
       } catch (InterruptedException e) {
-        // empty
       }
     }
-    if (listener != null)
-      listener.eventAllThreadsStarted(this);
+    if (listener != null) listener.eventAllThreadsStarted(this);
     return this;
   }
 
   /**
    * Configure in all threads the maximum number of notifications per connection.
-   * 
+   * <p/>
    * As soon as a thread reaches that maximum, it will automatically close the connection,
    * initialize a new connection and continue pushing more notifications.
-   * 
+   *
    * @param notifications the maximum number of notifications that threads will push in a single connection (default is 200)
    */
   public void setMaxNotificationsPerConnection(int notifications) {
@@ -267,10 +260,10 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Configure in all threads the number of milliseconds that threads should wait between each notification.
-   * 
+   * <p/>
    * This feature is intended to alleviate intense resource usage that can occur when
    * sending large quantities of notifications very quickly.
-
+   *
    * @param milliseconds the number of milliseconds threads should sleep between individual notifications (default is 0)
    */
   public void setSleepBetweenNotifications(long milliseconds) {
@@ -278,9 +271,14 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
       thread.setSleepBetweenNotifications(milliseconds);
   }
 
+  public void stopQueue() {
+    for (NotificationThread thread : threads)
+      thread.stopQueue();
+  }
+
   /**
    * Get a list of threads created to push notifications.
-   * 
+   *
    * @return a list of threads
    */
   public List<NotificationThread> getThreads() {
@@ -289,6 +287,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Get the progress listener, if any is attached.
+   *
    * @return a progress listener
    */
   public NotificationProgressListener getListener() {
@@ -297,7 +296,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Attach an event listener to this object as well as all linked threads.
-   * 
+   *
    * @param listener
    */
   public void setListener(NotificationProgressListener listener) {
@@ -310,36 +309,34 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * Worker threads invoke this method as soon as they have completed their work.
    * This method tracks the number of threads still running, allowing us
    * to detect when ALL threads have finished.
-   * 
+   * <p/>
    * When all threads are done working, this method fires an AllThreadsFinished
    * event to the attached listener (if one is present) and wakes up any
    * object that is waiting for the waitForAllThreads() method to return.
-   * 
+   *
    * @param notificationThread
    */
   protected synchronized void threadFinished(NotificationThread notificationThread) {
     threadsRunning--;
     if (threadsRunning == 0) {
-      if (listener != null)
-        listener.eventAllThreadsFinished(this);
+      if (listener != null) listener.eventAllThreadsFinished(this);
       try {
         synchronized (finishPoint) {
           finishPoint.notifyAll();
         }
       } catch (Exception e) {
-        // empty
       }
     }
   }
 
   /**
    * Wait for all threads to complete their work.
-   * 
+   * <p/>
    * This method blocks and returns only when all threads are done.
    * When using this method, you need to check critical exceptions manually to make sure that all threads were able to do their work.
-   * 
+   * <p/>
    * This method should not be used in QUEUE mode, as threads stay idle and never end.
-   * 
+   *
    * @throws InterruptedException
    */
   public void waitForAllThreads() throws InterruptedException {
@@ -348,17 +345,17 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
         finishPoint.wait();
       }
     } catch (IllegalMonitorStateException e) {
-      /* All threads are most likely already done, so we ignore this */
+			/* All threads are most likely already done, so we ignore this */
     }
   }
 
   /**
    * Wait for all threads to complete their work, but throw any critical exception that occurs in a thread.
-   * 
+   * <p/>
    * This method blocks and returns only when all threads are done.
-   * 
+   * <p/>
    * This method should not be used in QUEUE mode, as threads stay idle and never end.
-   * 
+   *
    * @param throwCriticalExceptions If true, this method will throw the first critical exception that occured in a thread (if any).  If false, critical exceptions will not be checked.
    * @throws Exception if throwCriticalExceptions is true and a critical exception did occur in a thread
    */
@@ -366,8 +363,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
     waitForAllThreads();
     if (throwCriticalExceptions) {
       List<Exception> exceptions = getCriticalExceptions();
-      if (exceptions.size() > 0)
-        throw exceptions.get(0);
+      if (exceptions.size() > 0) throw exceptions.get(0);
     }
   }
 
@@ -384,26 +380,27 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Get a list of all notifications pushed by all threads.
-   * 
+   *
    * @return a list of pushed notifications
    */
-  @Override
-  public PushedNotifications getPushedNotifications() {
+  public PushedNotifications getPushedNotifications(boolean clearLists) {
     int capacity = 0;
     for (NotificationThread thread : threads)
-      capacity += thread.getPushedNotifications().size();
+      capacity += thread.getPushedNotifications(false).size();
     PushedNotifications all = new PushedNotifications(capacity);
     all.setMaxRetained(capacity);
     for (NotificationThread thread : threads)
-      all.addAll(thread.getPushedNotifications());
+      all.addAll(thread.getPushedNotifications(clearLists));
     return all;
   }
 
   /**
    * Clear the internal list of PushedNotification objects maintained in each thread.
    * You should invoke this method once you no longer need the list of PushedNotification objects so that memory can be reclaimed.
+   *
+   * @deprecated Not thead-safe.  use getPushedNotifications(true) instead.
    */
-  @Override
+  @Deprecated
   public void clearPushedNotifications() {
     for (NotificationThread thread : threads)
       thread.clearPushedNotifications();
@@ -411,20 +408,24 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   /**
    * Get a list of all notifications that all threads attempted to push but that failed.
-   * 
+   *
    * @return a list of failed notifications
+   * @deprecated Not thead-safe.  use getPushedNotifications(true).getFailedNotifications() instead.
    */
+  @Deprecated
   public PushedNotifications getFailedNotifications() {
-    return getPushedNotifications().getFailedNotifications();
+    return getPushedNotifications(false).getFailedNotifications();
   }
 
   /**
    * Get a list of all notifications that all threads attempted to push and succeeded.
-   * 
+   *
    * @return a list of successful notifications
+   * @deprecated Not thead-safe.  use getPushedNotifications(true).getSuccessfulNotifications() instead.
    */
+  @Deprecated
   public PushedNotifications getSuccessfulNotifications() {
-    return getPushedNotifications().getSuccessfulNotifications();
+    return getPushedNotifications(false).getSuccessfulNotifications();
   }
 
   /**
@@ -432,37 +433,36 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * Critical exceptions include CommunicationException and KeystoreException.
    * Exceptions related to tokens, payloads and such are *not* included here,
    * as they are noted in individual PushedNotification objects.
-   * 
+   *
    * @return a list of critical exceptions
    */
-  @Override
   public List<Exception> getCriticalExceptions() {
-    List<Exception> exceptions = new Vector<>();
+    List<Exception> exceptions = new Vector<Exception>();
     for (NotificationThread thread : threads) {
       Exception exception = thread.getCriticalException();
-      if (exception != null)
-        exceptions.add(exception);
+      if (exception != null) exceptions.add(exception);
     }
     return exceptions;
+  }
+
+  /**
+   * Get the amount of time that the library will wait after starting a thread and before starting the next one.
+   *
+   * @return the number of milliseconds currently configured
+   */
+  public long getDelayBetweenThreads() {
+    return delayBetweenThreads;
   }
 
   /**
    * Set the amount of time that the library will wait after starting a thread and before starting the next one.
    * The default delay is 200 milliseconds.  This means that starting 10 threads will take 2 seconds to fully start.
    * As discussed in issue report #102, adding a delay improves reliability.
-   * 
+   *
    * @param delayBetweenThreads a number of milliseconds
    */
   public void setDelayBetweenThreads(long delayBetweenThreads) {
     this.delayBetweenThreads = delayBetweenThreads;
-  }
-
-  /**
-   * Get the amount of time that the library will wait after starting a thread and before starting the next one.
-   * @return the number of milliseconds currently configured
-   */
-  public long getDelayBetweenThreads() {
-    return delayBetweenThreads;
   }
 
 }

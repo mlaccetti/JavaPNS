@@ -9,3 +9,4 @@ To support JPA:
 Notes:
 
 - AppleNotificationServer and AppleFeedbackServer objects can also be injected instead of using *BasicImpl implementations
+

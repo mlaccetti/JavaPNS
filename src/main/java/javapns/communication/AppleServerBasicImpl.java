@@ -1,29 +1,31 @@
 package javapns.communication;
 
-import java.io.*;
+import javapns.communication.exceptions.InvalidKeystoreReferenceException;
+import javapns.communication.exceptions.KeystoreException;
 
-import javapns.communication.exceptions.*;
+import java.io.InputStream;
 
 /**
  * A basic and abstract implementation of the AppleServer interface
  * intended to facilitate rapid deployment.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public abstract class AppleServerBasicImpl implements AppleServer {
-
-  private Object keystore;
   private final String password;
   private final String type;
-  private String proxyHost;
-  private int proxyPort;
+  private       Object keystore;
+
+  private       String proxyHost;
+  private       int    proxyPort;
+  private       String proxyAuthorization;
 
   /**
    * Constructs a AppleServerBasicImpl object.
-   * 
+   *
    * @param keystore The keystore to use (can be a File, an InputStream, a String for a file path, or a byte[] array)
    * @param password The keystore's password
-   * @param type The keystore type (typically PKCS12)
+   * @param type     The keystore type (typically PKCS12)
    * @throws KeystoreException thrown if an error occurs when loading the keystore
    */
   public AppleServerBasicImpl(Object keystore, String password, String type) throws KeystoreException {
@@ -36,35 +38,36 @@ public abstract class AppleServerBasicImpl implements AppleServer {
     this.keystore = KeystoreManager.ensureReusableKeystore(this, this.keystore);
   }
 
-  @Override
   public InputStream getKeystoreStream() throws InvalidKeystoreReferenceException {
     return KeystoreManager.streamKeystore(keystore);
   }
 
-  @Override
   public String getKeystorePassword() {
     return password;
   }
 
-  @Override
   public String getKeystoreType() {
     return type;
   }
 
-  @Override
   public String getProxyHost() {
     return proxyHost;
   }
 
-  @Override
   public int getProxyPort() {
     return proxyPort;
   }
 
-  @Override
   public void setProxy(String proxyHost, int proxyPort) {
     this.proxyHost = proxyHost;
     this.proxyPort = proxyPort;
   }
 
+  public String getProxyAuthorization() {
+    return proxyAuthorization;
+  }
+
+  public void setProxyAuthorization(String proxyAuthorization) {
+    this.proxyAuthorization = proxyAuthorization;
+  }
 }

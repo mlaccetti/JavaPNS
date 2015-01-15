@@ -1,11 +1,11 @@
 package javapns.notification.management;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import javapns.json.JSONException;
+import javapns.json.JSONObject;
 
 /**
  * An MDM payload for CalendarSubscription.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class CalendarSubscriptionPayload extends MobileConfigPayload {
@@ -32,4 +32,5 @@ public class CalendarSubscriptionPayload extends MobileConfigPayload {
   public void setSubCalAccountUseSSL(boolean value) throws JSONException {
     getPayload().put("SubCalAccountUseSSL", value);
   }
+
 }

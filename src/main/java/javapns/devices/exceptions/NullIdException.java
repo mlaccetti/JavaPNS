@@ -2,8 +2,10 @@ package javapns.devices.exceptions;
 
 /**
  * Thrown when the given id is null
+ *
  * @author Maxime Peron
  */
+@Deprecated
 @SuppressWarnings("serial")
 public class NullIdException extends Exception {
 
@@ -14,11 +16,12 @@ public class NullIdException extends Exception {
    * Constructor
    */
   public NullIdException() {
-    this.message = "Client already exists";
+    message = "Client already exists";
   }
 
   /**
    * Constructor with custom message
+   *
    * @param message
    */
   public NullIdException(String message) {
@@ -28,8 +31,7 @@ public class NullIdException extends Exception {
   /**
    * String representation
    */
-  @Override
   public String toString() {
-    return this.message;
+    return message;
   }
 }

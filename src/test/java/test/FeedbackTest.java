@@ -1,43 +1,43 @@
-package javapns.test;
-
-import java.util.List;
+package test;
 
 import javapns.Push;
 import javapns.communication.exceptions.CommunicationException;
 import javapns.communication.exceptions.KeystoreException;
 import javapns.devices.Device;
 
+import java.util.List;
+
 /**
  * A command-line test facility for the Feedback Service.
  * <p>Example:  <code>java -cp "[required libraries]" javapns.test.FeedbackTest keystore.p12 mypass</code></p>
- * 
+ * <p/>
  * <p>By default, this test uses the sandbox service.  To switch, add "production" as a third parameter:</p>
  * <p>Example:  <code>java -cp "[required libraries]" javapns.test.FeedbackTest keystore.p12 mypass production</code></p>
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class FeedbackTest extends TestFoundation {
+
+  private FeedbackTest() {
+  }
+
   /**
    * Execute this class from the command line to run tests.
-   * 
+   *
    * @param args
    */
   public static void main(String[] args) {
 
-    /* Verify that the test is being invoked */
-    if (!verifyCorrectUsage(FeedbackTest.class, args, "keystore-path", "keystore-password", "[production|sandbox]"))
-      return;
+		/* Verify that the test is being invoked  */
+    if (!TestFoundation.verifyCorrectUsage(FeedbackTest.class, args, "keystore-path", "keystore-password", "[production|sandbox]")) return;
 
-    /* Get a list of inactive devices */
-    feedbackTest(args);
-  }
-
-  private FeedbackTest() {
-    // empty
+		/* Get a list of inactive devices */
+    FeedbackTest.feedbackTest(args);
   }
 
   /**
    * Retrieves a list of inactive devices from the Feedback service.
+   *
    * @param args
    */
   private static void feedbackTest(String[] args) {
@@ -56,4 +56,5 @@ public class FeedbackTest extends TestFoundation {
       e.printStackTrace();
     }
   }
+
 }

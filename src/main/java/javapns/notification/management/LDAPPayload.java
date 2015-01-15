@@ -1,14 +1,15 @@
 package javapns.notification.management;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import javapns.json.JSONException;
+import javapns.json.JSONObject;
 
 /**
  * An MDM payload for LDAP.
- * 
+ *
  * @author Sylvain Pedneault
  */
 public class LDAPPayload extends MobileConfigPayload {
+
   public LDAPPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName, String ldapAccountHostName, boolean ldapAccountUseSSL) throws JSONException {
     super(payloadVersion, "com.apple.webClip.managed", payloadOrganization, payloadIdentifier, payloadDisplayName);
     JSONObject payload = getPayload();
@@ -46,8 +47,8 @@ public class LDAPPayload extends MobileConfigPayload {
     payload.put("LDAPSearchSettings", searchSettings);
     searchSettings.put("LDAPSearchSettingSearchBase", ldapSearchSettingSearchBase);
     searchSettings.put("LDAPSearchSettingScope", ldapSearchSettingScope);
-    if (ldapSearchSettingDescription != null)
-      searchSettings.put("LDAPSearchSettingDescription", ldapSearchSettingDescription);
+    if (ldapSearchSettingDescription != null) searchSettings.put("LDAPSearchSettingDescription", ldapSearchSettingDescription);
     return searchSettings;
   }
+
 }
