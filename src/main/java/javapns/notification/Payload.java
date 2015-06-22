@@ -180,7 +180,7 @@ public abstract class Payload {
       int currentPayloadSize = getPayloadAsBytesUnchecked().length;
       int estimatedSize = currentPayloadSize;
       if (propertyName != null && propertyValue != null) {
-        estimatedSize += 5; // "":""
+        estimatedSize += 6; // ,"":""
         estimatedSize += propertyName.getBytes(getCharacterEncoding()).length;
         int estimatedValueSize = 0;
 
