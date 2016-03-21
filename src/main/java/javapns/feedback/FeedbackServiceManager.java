@@ -1,197 +1,197 @@
 package javapns.feedback;
 
-import javapns.communication.exceptions.CommunicationException;
-import javapns.communication.exceptions.KeystoreException;
-import javapns.devices.Device;
-import javapns.devices.DeviceFactory;
-import javapns.devices.implementations.basic.BasicDevice;
-import javapns.devices.implementations.basic.BasicDeviceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.*;
+import java.sql.*;
+import java.util.*;
 
-import javax.net.ssl.SSLSocket;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Timestamp;
-import java.util.LinkedList;
+import javapns.communication.exceptions.*;
+import javapns.devices.*;
+import javapns.devices.implementations.basic.*;
+
+import javax.net.ssl.*;
+
+import org.apache.log4j.*;
 
 /**
- * Class for interacting with a specific Feedback Service.
+ * Class for interacting with a specific Feedback Service. 
  *
  * @author kljajo, dgardon, Sylvain Pedneault
+ *
  */
 public class FeedbackServiceManager {
-  protected static final Logger logger = LoggerFactory.getLogger(FeedbackServiceManager.class);
 
-  /* Length of the tuple sent by Apple */
-  private static final int FEEDBACK_TUPLE_SIZE = 38;
-  /*
-   * Number of milliseconds to use as socket timeout.
-   * Set to -1 to leave the timeout to its default setting.
-   */
-  private              int sslSocketTimeout    = 30 * 1000;
-  @Deprecated
-  private DeviceFactory deviceFactory;
+	protected static final Logger logger = Logger.getLogger(FeedbackServiceManager.class);
 
-  /**
-   * Constructs a FeedbackServiceManager with a supplied DeviceFactory.
-   *
-   * @deprecated The DeviceFactory-based architecture is deprecated.
-   */
-  @Deprecated
-  public FeedbackServiceManager(DeviceFactory deviceFactory) {
-    setDeviceFactory(deviceFactory);
-  }
+	/* Length of the tuple sent by Apple */
+	private static final int FEEDBACK_TUPLE_SIZE = 38;
 
-  /**
-   * Constructs a FeedbackServiceManager with a default basic DeviceFactory.
-   */
-  @SuppressWarnings("deprecation")
-  public FeedbackServiceManager() {
-    setDeviceFactory(new BasicDeviceFactory());
-  }
+	@Deprecated
+	private DeviceFactory deviceFactory;
 
-  /**
-   * Retrieve all devices which have un-installed the application w/Path to keystore
-   *
-   * @param server Connection information for the Apple server
-   * @return List of Devices
-   * @throws IOException
-   * @throws FileNotFoundException
-   * @throws CertificateException
-   * @throws NoSuchAlgorithmException
-   * @throws KeyStoreException
-   * @throws KeyManagementException
-   * @throws UnrecoverableKeyException
-   */
-  /**
-   * @throws KeystoreException
-   * @throws CommunicationException
-   */
-  public LinkedList<Device> getDevices(AppleFeedbackServer server) throws KeystoreException, CommunicationException {
-    ConnectionToFeedbackServer connectionHelper = new ConnectionToFeedbackServer(server);
-    SSLSocket socket = connectionHelper.getSSLSocket();
-    return getDevices(socket);
-  }
 
-  /**
-   * Retrieves the list of devices from an established SSLSocket.
-   *
-   * @param socket
-   * @return Devices
-   * @throws CommunicationException
-   */
-  private LinkedList<Device> getDevices(SSLSocket socket) throws CommunicationException {
+	/**
+	 * Constructs a FeedbackServiceManager with a supplied DeviceFactory.
+	 * @deprecated The DeviceFactory-based architecture is deprecated. 
+	 */
+	@Deprecated
+	public FeedbackServiceManager(DeviceFactory deviceFactory) {
+		this.setDeviceFactory(deviceFactory);
+	}
 
-    // Compute
-    LinkedList<Device> listDev = null;
-    try {
-      InputStream socketStream = socket.getInputStream();
-      if (sslSocketTimeout > 0) socket.setSoTimeout(sslSocketTimeout);
 
-      // Read bytes
-      byte[] b = new byte[1024];
-      ByteArrayOutputStream message = new ByteArrayOutputStream();
-      int nbBytes = 0;
-      // socketStream.available can return 0
-      // http://forums.sun.com/thread.jspa?threadID=5428561
-      while ((nbBytes = socketStream.read(b, 0, 1024)) != -1) {
-        message.write(b, 0, nbBytes);
-      }
+	/**
+	 * Constructs a FeedbackServiceManager with a default basic DeviceFactory.
+	 */
+	@SuppressWarnings("deprecation")
+	public FeedbackServiceManager() {
+		this.setDeviceFactory(new BasicDeviceFactory());
+	}
 
-      listDev = new LinkedList<Device>();
-      byte[] listOfDevices = message.toByteArray();
-      int nbTuples = listOfDevices.length / FeedbackServiceManager.FEEDBACK_TUPLE_SIZE;
-      FeedbackServiceManager.logger.debug("Found: [" + nbTuples + "]");
-      for (int i = 0; i < nbTuples; i++) {
-        int offset = i * FeedbackServiceManager.FEEDBACK_TUPLE_SIZE;
 
-        // Build date
-        int index = 0;
-        int firstByte = 0;
-        int secondByte = 0;
-        int thirdByte = 0;
-        int fourthByte = 0;
-        long anUnsignedInt = 0;
+	/**
+	 * Retrieve all devices which have un-installed the application w/Path to keystore
+	 * 
+	 * @param server Connection information for the Apple server
+	 * @return List of Devices
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 * @throws CertificateException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws KeyStoreException 
+	 * @throws KeyManagementException 
+	 * @throws UnrecoverableKeyException 
+	 */
+	/**
+	 * @throws KeystoreException 
+	 * @throws CommunicationException 
+	 */
+	public LinkedList<Device> getDevices(AppleFeedbackServer server) throws KeystoreException, CommunicationException {
+		ConnectionToFeedbackServer connectionHelper = new ConnectionToFeedbackServer(server);
+		SSLSocket socket = connectionHelper.getSSLSocket();
+		return getDevices(socket);
+	}
 
-        firstByte = 0x000000FF & (int) listOfDevices[offset];
-        secondByte = 0x000000FF & (int) listOfDevices[offset + 1];
-        thirdByte = 0x000000FF & (int) listOfDevices[offset + 2];
-        fourthByte = 0x000000FF & (int) listOfDevices[offset + 3];
-        index = index + 4;
-        anUnsignedInt = (long) (firstByte << 24 | secondByte << 16 | thirdByte << 8 | fourthByte) & 0xFFFFFFFFL;
-        Timestamp timestamp = new Timestamp(anUnsignedInt * 1000);
 
-        // Build device token length
-        int deviceTokenLength = listOfDevices[offset + 4] << 8 | listOfDevices[offset + 5];
+	/**
+	 * Retrieves the list of devices from an established SSLSocket.
+	 * 
+	 * @param socket
+	 * @return Devices
+	 * @throws CommunicationException 
+	 */
+	private LinkedList<Device> getDevices(SSLSocket socket) throws CommunicationException {
 
-        // Build device token
-        String deviceToken = "";
-        int octet = 0;
-        for (int j = 0; j < 32; j++) {
-          octet = 0x000000FF & (int) listOfDevices[offset + 6 + j];
-          deviceToken = deviceToken.concat(String.format("%02x", octet));
-        }
+		// Compute
+		LinkedList<Device> listDev = null;
+		try {
+			InputStream socketStream = socket.getInputStream();
 
-        // Build device and add to list
-        /* Create a basic device, as we do not want to go through the factory and create a device in the actual database... */
-        Device device = new BasicDevice();
-        device.setToken(deviceToken);
-        device.setLastRegister(timestamp);
-        listDev.add(device);
-        FeedbackServiceManager.logger.info("FeedbackManager retrieves one device :  " + timestamp + ";" + deviceTokenLength + ";" + deviceToken + ".");
-      }
+			// Read bytes        
+			byte[] b = new byte[1024];
+			ByteArrayOutputStream message = new ByteArrayOutputStream();
+			int nbBytes = 0;
+			// socketStream.available can return 0
+			// http://forums.sun.com/thread.jspa?threadID=5428561
+			while ((nbBytes = socketStream.read(b, 0, 1024)) != -1) {
+				message.write(b, 0, nbBytes);
+			}
 
-      // Close the socket and return the list
+			listDev = new LinkedList<Device>();
+			byte[] listOfDevices = message.toByteArray();
+			int nbTuples = listOfDevices.length / FEEDBACK_TUPLE_SIZE;
+			logger.debug("Found: [" + nbTuples + "]");
+			for (int i = 0; i < nbTuples; i++) {
+				int offset = i * FEEDBACK_TUPLE_SIZE;
 
-    } catch (Exception e) {
-      FeedbackServiceManager.logger.debug("Caught exception fetching devices from Feedback Service");
-      throw new CommunicationException("Problem communicating with Feedback service", e);
-    } finally {
-      try {
-        socket.close();
-      } catch (Exception e) {
-      }
-    }
-    return listDev;
-  }
+				// Build date
+				int index = 0;
+				int firstByte = 0;
+				int secondByte = 0;
+				int thirdByte = 0;
+				int fourthByte = 0;
+				long anUnsignedInt = 0;
 
-  /**
-   * @return a device factory
-   * @deprecated The DeviceFactory-based architecture is deprecated.
-   */
-  @Deprecated
-  public DeviceFactory getDeviceFactory() {
-    return deviceFactory;
-  }
+				firstByte = (0x000000FF & ((int) listOfDevices[offset]));
+				secondByte = (0x000000FF & ((int) listOfDevices[offset + 1]));
+				thirdByte = (0x000000FF & ((int) listOfDevices[offset + 2]));
+				fourthByte = (0x000000FF & ((int) listOfDevices[offset + 3]));
+				index = index + 4;
+				anUnsignedInt = ((long) (firstByte << 24 | secondByte << 16 | thirdByte << 8 | fourthByte)) & 0xFFFFFFFFL;
+				Timestamp timestamp = new Timestamp(anUnsignedInt * 1000);
 
-  /**
-   * @param deviceFactory
-   * @deprecated The DeviceFactory-based architecture is deprecated.
-   */
-  @Deprecated
-  public void setDeviceFactory(DeviceFactory deviceFactory) {
-    this.deviceFactory = deviceFactory;
-  }
+				// Build device token length
+				int deviceTokenLength = listOfDevices[offset + 4] << 8 | listOfDevices[offset + 5];
 
-  /**
-   * Get the SSL socket timeout currently in use.
-   *
-   * @return the current SSL socket timeout value.
-   */
-  public int getSslSocketTimeout() {
-    return sslSocketTimeout;
-  }
+				// Build device token
+				String deviceToken = "";
+				int octet = 0;
+				for (int j = 0; j < 32; j++) {
+					octet = (0x000000FF & ((int) listOfDevices[offset + 6 + j]));
+					deviceToken = deviceToken.concat(String.format("%02x", octet));
+				}
 
-  /**
-   * Set the SSL socket timeout to use.
-   *
-   * @param sslSocketTimeout
-   */
-  public void setSslSocketTimeout(int sslSocketTimeout) {
-    this.sslSocketTimeout = sslSocketTimeout;
-  }
+				// Build device and add to list
+				/* Create a basic device, as we do not want to go through the factory and create a device in the actual database... */
+				Device device = new BasicDevice();
+				device.setToken(deviceToken);
+				device.setLastRegister(timestamp);
+				listDev.add(device);
+				logger.info("FeedbackManager retrieves one device :  " + timestamp + ";" + deviceTokenLength + ";" + deviceToken + ".");
+			}
+
+			// Close the socket and return the list
+
+		} catch (Exception e) {
+			logger.debug("Caught exception fetching devices from Feedback Service");
+			throw new CommunicationException("Problem communicating with Feedback service", e);
+		}
+
+		finally {
+			try {
+				socket.close();
+			} catch (Exception e) {
+			}
+		}
+		return listDev;
+	}
+
+
+	//	/**
+	//	 * Set the proxy if needed
+	//	 * @param host the proxyHost
+	//	 * @param port the proxyPort
+	//	 * @deprecated Configuring a proxy with this method affects overall JVM proxy settings.
+	//	 * Use AppleFeedbackServer.setProxy(..) to set a proxy for JavaPNS only.
+	//	 */
+	//	public void setProxy(String host, String port) {
+	//		this.proxySet = true;
+	//
+	//		System.setProperty("http.proxyHost", host);
+	//		System.setProperty("http.proxyPort", port);
+	//
+	//		System.setProperty("https.proxyHost", host);
+	//		System.setProperty("https.proxyPort", port);
+	//	}
+
+	/**
+	 * 
+	 * @param deviceFactory
+	 * @deprecated The DeviceFactory-based architecture is deprecated. 
+	 */
+	@Deprecated
+	public void setDeviceFactory(DeviceFactory deviceFactory) {
+		this.deviceFactory = deviceFactory;
+	}
+
+
+	/**
+	 * 
+	 * @return a device factory
+	 * @deprecated The DeviceFactory-based architecture is deprecated. 
+	 */
+	@Deprecated
+	public DeviceFactory getDeviceFactory() {
+		return deviceFactory;
+	}
 
 }

@@ -1,7 +1,14 @@
-target
+*.class
+
+.project
 .classpath
 .settings
-.project
-*.iml
+target
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
 .idea
-atlassian-ide-plugin.xml
+*.iml

@@ -1,22 +1,24 @@
 package javapns.feedback;
 
-import javapns.communication.AppleServer;
+import javapns.communication.*;
 
 /**
  * Interface representing a connection to an Apple Feedback Server
- *
+ * 
  * @author Sylvain Pedneault
  */
 public interface AppleFeedbackServer extends AppleServer {
 
-  String PRODUCTION_HOST = "feedback.push.apple.com";
-  int    PRODUCTION_PORT = 2196;
+	public static final String	PRODUCTION_HOST = "feedback.push.apple.com";
+	public static final int 	PRODUCTION_PORT = 2196;
+	
+	public static final String	DEVELOPMENT_HOST = "feedback.sandbox.push.apple.com";
+	public static final int 	DEVELOPMENT_PORT = 2196;
+	
 
-  String DEVELOPMENT_HOST = "feedback.sandbox.push.apple.com";
-  int    DEVELOPMENT_PORT = 2196;
+	public String getFeedbackServerHost();
 
-  String getFeedbackServerHost();
 
-  int getFeedbackServerPort();
+	public int getFeedbackServerPort();
 
 }

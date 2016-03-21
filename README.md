@@ -1,7 +1,31 @@
-### JavaPNS
+javapns-jdk16
+=============
 
-Fork of [JavaPNS](http://code.google.com/p/javapns/) to include Maven support and get deployed to the Sonatype OSS repo
+Apple Push Notification Service Provider for Java
 
-**Note:**
+Fork of JavaPNS to include Maven support - http://code.google.com/p/javapns/
 
-This project targets Java 7.
+Java1.6 compatible
+
+### Updates
+
+Version 2.3.1 released!
+
+**2.3.1 Changes**
+* PushNotificationBigPayload ```complex``` and ```fromJson``` methods fixed
+* Fix to make trust store work on IBM JVM
+
+**2.3 Changes**
+* iOS>=8 bigger notification payload support (2KB)
+* iOS>=7 Silent push notifications support ("content-available":1)
+
+### Installation through Central Maven Repository
+javapns-jdk16 is available on the Central Maven Repository.
+To use javapns-jdk16 in your project, please add the following dependency to your pom.xml file:
+```
+<dependency>
+	<groupId>com.github.fernandospr</groupId>
+	<artifactId>javapns-jdk16</artifactId>
+	<version>2.3.1</version>
+</dependency>
+```

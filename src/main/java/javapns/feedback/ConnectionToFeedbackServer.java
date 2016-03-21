@@ -1,34 +1,37 @@
 package javapns.feedback;
 
-import javapns.communication.ConnectionToAppleServer;
-import javapns.communication.exceptions.KeystoreException;
-import javapns.notification.AppleNotificationServer;
+import java.security.*;
 
-import java.security.KeyStore;
+import javapns.communication.*;
+import javapns.communication.exceptions.*;
+import javapns.notification.*;
 
 /**
  * Class representing a connection to a specific Feedback Server.
- *
+ * 
  * @author Sylvain Pedneault
  */
 public class ConnectionToFeedbackServer extends ConnectionToAppleServer {
 
-  public ConnectionToFeedbackServer(AppleFeedbackServer feedbackServer) throws KeystoreException {
-    super(feedbackServer);
-  }
+	public ConnectionToFeedbackServer(AppleFeedbackServer feedbackServer) throws KeystoreException {
+		super(feedbackServer);
+	}
 
-  public ConnectionToFeedbackServer(AppleNotificationServer server, KeyStore keystore) {
-    super(server, keystore);
-  }
 
-  @Override
-  public String getServerHost() {
-    return ((AppleFeedbackServer) getServer()).getFeedbackServerHost();
-  }
+	public ConnectionToFeedbackServer(AppleNotificationServer server, KeyStore keystore) throws KeystoreException {
+		super(server, keystore);
+	}
 
-  @Override
-  public int getServerPort() {
-    return ((AppleFeedbackServer) getServer()).getFeedbackServerPort();
-  }
+
+	@Override
+	public String getServerHost() {
+		return ((AppleFeedbackServer) getServer()).getFeedbackServerHost();
+	}
+
+
+	@Override
+	public int getServerPort() {
+		return ((AppleFeedbackServer) getServer()).getFeedbackServerPort();
+	}
 
 }

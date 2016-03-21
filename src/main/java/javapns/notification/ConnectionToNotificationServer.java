@@ -1,33 +1,36 @@
 package javapns.notification;
 
-import javapns.communication.ConnectionToAppleServer;
-import javapns.communication.exceptions.KeystoreException;
+import java.security.*;
 
-import java.security.KeyStore;
+import javapns.communication.*;
+import javapns.communication.exceptions.*;
 
 /**
  * Connection details specific to the Notification Service.
- *
+ * 
  * @author Sylvain Pedneault
  */
 public class ConnectionToNotificationServer extends ConnectionToAppleServer {
 
-  public ConnectionToNotificationServer(AppleNotificationServer server) throws KeystoreException {
-    super(server);
-  }
+	public ConnectionToNotificationServer(AppleNotificationServer server) throws KeystoreException {
+		super(server);
+	}
 
-  public ConnectionToNotificationServer(AppleNotificationServer server, KeyStore keystore) {
-    super(server, keystore);
-  }
 
-  @Override
-  public String getServerHost() {
-    return ((AppleNotificationServer) getServer()).getNotificationServerHost();
-  }
+	public ConnectionToNotificationServer(AppleNotificationServer server, KeyStore keystore) throws KeystoreException {
+		super(server, keystore);
+	}
 
-  @Override
-  public int getServerPort() {
-    return ((AppleNotificationServer) getServer()).getNotificationServerPort();
-  }
+
+	@Override
+	public String getServerHost() {
+		return ((AppleNotificationServer) getServer()).getNotificationServerHost();
+	}
+
+
+	@Override
+	public int getServerPort() {
+		return ((AppleNotificationServer) getServer()).getNotificationServerPort();
+	}
 
 }
