@@ -32,9 +32,6 @@ class FeedbackTest extends TestFoundation {
       return;
     }
 
-    /* Initialize Log4j to print logs to console */
-    configureBasicLogging();
-
     /* Get a list of inactive devices */
     feedbackTest(args);
   }

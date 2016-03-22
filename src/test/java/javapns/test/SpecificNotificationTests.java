@@ -38,9 +38,6 @@ class SpecificNotificationTests extends TestFoundation {
       return;
     }
 
-    /* Initialize Log4j to print logs to console */
-    configureBasicLogging();
-
     /* Push an alert */
     runTest(args);
   }

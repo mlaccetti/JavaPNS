@@ -75,9 +75,6 @@ class NotificationTest extends TestFoundation {
       return;
     }
 
-    /* Initialize Log4j to print logs to console */
-    configureBasicLogging();
-
     /* Push an alert */
     try {
       pushTest(args);
