@@ -14,7 +14,6 @@ import java.util.List;
  * @author Sylvain Pedneault
  */
 public interface PushQueue {
-
   /**
    * Queue a message for delivery.  A thread will pick it up and push it asynchroneously.
    * This method has no effect if the underlying notification thread is not in QUEUE mode.
@@ -53,11 +52,6 @@ public interface PushQueue {
   PushQueue start();
 
   /**
-   * Invoke stopQueue on all threads working for the queue.
-   */
-  void stopQueue();
-
-  /**
    * Get a list of critical exceptions that underlying threads experienced.
    * Critical exceptions include CommunicationException and KeystoreException.
    * Exceptions related to tokens, payloads and such are *not* included here,
@@ -76,13 +70,11 @@ public interface PushQueue {
    *
    * @return a list of pushed notifications
    */
-  PushedNotifications getPushedNotifications(boolean clearList);
+  PushedNotifications getPushedNotifications();
 
   /**
    * Clear the internal lists of PushedNotification objects maintained by this queue.
    * You should invoke this method once you no longer need the list of PushedNotification objects so that memory can be reclaimed.
    */
-  @Deprecated
   void clearPushedNotifications();
-
 }

@@ -5,18 +5,18 @@ package javapns.devices.exceptions;
  *
  * @author Maxime Peron
  */
-@Deprecated
-@SuppressWarnings("serial")
+
 public class UnknownDeviceException extends Exception {
 
+  private static final long serialVersionUID = -322193098126184434L;
   /* Custom message for this exception */
-  private String message;
+  private final String message;
 
   /**
    * Constructor
    */
   public UnknownDeviceException() {
-    message = "Unknown client";
+    this.message = "Unknown client";
   }
 
   /**
@@ -24,7 +24,7 @@ public class UnknownDeviceException extends Exception {
    *
    * @param message
    */
-  public UnknownDeviceException(String message) {
+  public UnknownDeviceException(final String message) {
     this.message = message;
   }
 
@@ -32,6 +32,6 @@ public class UnknownDeviceException extends Exception {
    * String representation
    */
   public String toString() {
-    return message;
+    return this.message;
   }
 }

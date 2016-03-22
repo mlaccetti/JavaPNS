@@ -4,7 +4,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
        default-autowire="byName">
 
-
   <bean id="myCustomDeviceFactory" class="****** YOUR CUSTOM DEVICE FACTORY ******"/>
 
   <bean id="pushNotificationManager" class="javapns.notification.PushNotificationManager" scope="singleton">

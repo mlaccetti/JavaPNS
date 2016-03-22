@@ -5,18 +5,18 @@ package javapns.devices.exceptions;
  *
  * @author Maxime Peron
  */
-@Deprecated
-@SuppressWarnings("serial")
+
 public class NullIdException extends Exception {
 
+  private static final long serialVersionUID = -2842793759970312540L;
   /* Custom message for this exception */
-  private String message;
+  private final String message;
 
   /**
    * Constructor
    */
   public NullIdException() {
-    message = "Client already exists";
+    this.message = "Client already exists";
   }
 
   /**
@@ -24,7 +24,7 @@ public class NullIdException extends Exception {
    *
    * @param message
    */
-  public NullIdException(String message) {
+  public NullIdException(final String message) {
     this.message = message;
   }
 
@@ -32,6 +32,6 @@ public class NullIdException extends Exception {
    * String representation
    */
   public String toString() {
-    return message;
+    return this.message;
   }
 }

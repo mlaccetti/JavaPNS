@@ -1,20 +1,14 @@
 package javapns.notification.exceptions;
 
 /**
- * Specific exception indicating that you attempted to push a payload that contained
- * no property whatsoever.
- * <p/>
- * This may happen if for example you create an empty payload using PushNotificationPayload.complex()
- * or if you instantiate a payload object directly and do not invoke any of its methods to
- * specify what the payload should contain (like addAlert).
- * <p/>
- * You do not need to catch this exception specifically, as it will be put in a
- * PushedNotification object as the exception that caused a push notification to having failed.
+ * Thrown when a payload is empty.
  *
  * @author Sylvain Pedneault
  */
-@SuppressWarnings("serial")
+
 public class PayloadIsEmptyException extends Exception {
+
+  private static final long serialVersionUID = 8142083854784121700L;
 
   public PayloadIsEmptyException() {
     super("Payload is empty");
@@ -25,7 +19,7 @@ public class PayloadIsEmptyException extends Exception {
    *
    * @param message
    */
-  public PayloadIsEmptyException(String message) {
+  public PayloadIsEmptyException(final String message) {
     super(message);
   }
 

@@ -10,10 +10,9 @@ import java.sql.Timestamp;
  * @author Sylvain Pedneault
  */
 public interface Device {
-
   /**
    * An id representing a particular device.
-   * <p/>
+   * <p>
    * Note that this is a local reference to the device,
    * which is not related to the actual device UUID or
    * other device-specific identification. Most of the
@@ -25,7 +24,7 @@ public interface Device {
 
   /**
    * An id representing a particular device.
-   * <p/>
+   * <p>
    * Note that this is a local reference to the device,
    * which is not related to the actual device UUID or
    * other device-specific identification. Most of the
@@ -58,5 +57,4 @@ public interface Device {
    * @param lastRegister the last register
    */
   void setLastRegister(Timestamp lastRegister);
-
 }

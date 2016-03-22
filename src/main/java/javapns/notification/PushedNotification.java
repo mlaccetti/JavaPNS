@@ -1,7 +1,6 @@
 package javapns.notification;
 
 import javapns.devices.Device;
-import javapns.devices.implementations.basic.BasicDevice;
 import javapns.notification.exceptions.ErrorResponsePacketReceivedException;
 
 import java.util.List;
@@ -9,9 +8,9 @@ import java.util.Vector;
 
 /**
  * <p>An object representing the result of a push notification to a specific payload to a single device.</p>
- * <p/>
+ * <p>
  * <p>If any error occurred while trying to push the notification, an exception is attached.</p>
- * <p/>
+ * <p>
  * <p>If Apple's Push Notification Service returned an error-response packet, it is linked to the related PushedNotification
  * so you can find out what the actual error was.</p>
  *
@@ -19,29 +18,29 @@ import java.util.Vector;
  */
 public class PushedNotification {
 
-  private Payload        payload;
-  private Device         device;
+  private Payload payload;
+  private Device device;
   private ResponsePacket response;
 
-  private int     identifier;
-  private long    expiry;
-  private int     transmissionAttempts;
+  private int identifier;
+  private long expiry;
+  private int transmissionAttempts;
   private boolean transmissionCompleted;
 
   private Exception exception;
 
-  protected PushedNotification(Device device, Payload payload) {
+  protected PushedNotification(final Device device, final Payload payload) {
     this.device = device;
     this.payload = payload;
   }
 
-  protected PushedNotification(Device device, Payload payload, int identifier) {
+  PushedNotification(final Device device, final Payload payload, final int identifier) {
     this.device = device;
     this.payload = payload;
     this.identifier = identifier;
   }
 
-  public PushedNotification(Device device, Payload payload, Exception exception) {
+  public PushedNotification(final Device device, final Payload payload, final Exception exception) {
     this.device = device;
     this.payload = payload;
     this.exception = exception;
@@ -53,10 +52,12 @@ public class PushedNotification {
    * @param notifications a list of pushed notifications
    * @return a filtered list containing only notifications that were succcessful
    */
-  public static List<PushedNotification> findSuccessfulNotifications(List<PushedNotification> notifications) {
-    List<PushedNotification> filteredList = new Vector<PushedNotification>();
-    for (PushedNotification notification : notifications) {
-      if (notification.isSuccessful()) filteredList.add(notification);
+  public static List<PushedNotification> findSuccessfulNotifications(final List<PushedNotification> notifications) {
+    final List<PushedNotification> filteredList = new Vector<>();
+    for (final PushedNotification notification : notifications) {
+      if (notification.isSuccessful()) {
+        filteredList.add(notification);
+      }
     }
     return filteredList;
   }
@@ -67,9 +68,9 @@ public class PushedNotification {
    * @param notifications a list of pushed notifications
    * @return a filtered list containing only notifications that were <b>not</b> successful
    */
-  public static List<PushedNotification> findFailedNotifications(List<PushedNotification> notifications) {
-    List<PushedNotification> filteredList = new Vector<PushedNotification>();
-    for (PushedNotification notification : notifications) {
+  public static List<PushedNotification> findFailedNotifications(final List<PushedNotification> notifications) {
+    final List<PushedNotification> filteredList = new Vector<>();
+    for (final PushedNotification notification : notifications) {
       if (!notification.isSuccessful()) {
         filteredList.add(notification);
       }
@@ -86,7 +87,7 @@ public class PushedNotification {
     return payload;
   }
 
-  protected void setPayload(Payload payload) {
+  protected void setPayload(final Payload payload) {
     this.payload = payload;
   }
 
@@ -99,7 +100,7 @@ public class PushedNotification {
     return device;
   }
 
-  protected void setDevice(Device device) {
+  protected void setDevice(final Device device) {
     this.device = device;
   }
 
@@ -113,7 +114,7 @@ public class PushedNotification {
     return identifier;
   }
 
-  protected void setIdentifier(int identifier) {
+  void setIdentifier(final int identifier) {
     this.identifier = identifier;
   }
 
@@ -126,11 +127,11 @@ public class PushedNotification {
     return expiry;
   }
 
-  protected void setExpiry(long expiry) {
+  void setExpiry(final long expiry) {
     this.expiry = expiry;
   }
 
-  protected void addTransmissionAttempt() {
+  void addTransmissionAttempt() {
     transmissionAttempts++;
   }
 
@@ -143,7 +144,7 @@ public class PushedNotification {
     return transmissionAttempts;
   }
 
-  protected void setTransmissionAttempts(int transmissionAttempts) {
+  void setTransmissionAttempts(final int transmissionAttempts) {
     this.transmissionAttempts = transmissionAttempts;
   }
 
@@ -153,10 +154,11 @@ public class PushedNotification {
    * @return a human-friendly description of the number of attempts made to transmit the notification
    */
   public String getLatestTransmissionAttempt() {
-    if (transmissionAttempts == 0) return "no attempt yet";
+    if (transmissionAttempts == 0) {
+      return "no attempt yet";
+    }
+
     switch (transmissionAttempts) {
-      case 0:
-        return "no attempt yet";
       case 1:
         return "first attempt";
       case 2:
@@ -182,8 +184,8 @@ public class PushedNotification {
     return transmissionCompleted;
   }
 
-  protected void setTransmissionCompleted(boolean completed) {
-    transmissionCompleted = completed;
+  void setTransmissionCompleted(final boolean completed) {
+    this.transmissionCompleted = completed;
   }
 
   /**
@@ -196,30 +198,38 @@ public class PushedNotification {
     return response;
   }
 
-  protected void setResponse(ResponsePacket response) {
+  void setResponse(final ResponsePacket response) {
     this.response = response;
-    if (response != null && exception == null) exception = new ErrorResponsePacketReceivedException(response);
+    if (response != null && exception == null) {
+      exception = new ErrorResponsePacketReceivedException(response);
+    }
   }
 
   /**
    * <p>Returns true if no response packet was received for this notification,
    * or if one was received but is not an error-response (ie command 8),
    * or if one was received but its status is 0 (no error occurred).</p>
-   * <p/>
+   * <p>
    * <p>Returns false if an error-response packet is attached and has
    * a non-zero status code.</p>
-   * <p/>
+   * <p>
    * <p>Returns false if an exception is attached.</p>
-   * <p/>
+   * <p>
    * <p>Make sure you use the Feedback Service to cleanup your list of
    * invalid device tokens, as Apple's documentation says.</p>
    *
    * @return true if push was successful, false otherwise
    */
   public boolean isSuccessful() {
-    if (!transmissionCompleted) return false;
-    if (response == null) return true;
-    if (!response.isValidErrorMessage()) return true;
+    if (!transmissionCompleted) {
+      return false;
+    }
+    if (response == null) {
+      return true;
+    }
+    if (!response.isValidErrorMessage()) {
+      return true;
+    }
     return false;
   }
 
@@ -228,22 +238,15 @@ public class PushedNotification {
    */
   @Override
   public String toString() {
-    StringBuilder msg = new StringBuilder();
-    msg.append("[" + identifier + "]");
+    final StringBuilder msg = new StringBuilder();
+    msg.append("[").append(identifier).append("]");
     msg.append(transmissionCompleted ? " transmitted " + payload + " on " + getLatestTransmissionAttempt() : " not transmitted");
-    msg.append(" to token ");
-    try {
-      // Test if token is valid
-      new BasicDevice(device.getToken(), true);
-      msg.append(device.getToken().substring(0, 5) + ".." + device.getToken().substring(59, 64));
-    } catch (Exception e) {
-      msg.append("INVALID_TOKEN:[" + device.getToken() + "]");
-    }
+    msg.append(" to token ").append(device.getToken().substring(0, 5)).append("..").append(device.getToken().substring(59, 64));
     if (response != null) {
-      msg.append("  " + response.getMessage());
+      msg.append("  ").append(response.getMessage());
     }
     if (exception != null) {
-      msg.append("  " + exception);
+      msg.append("  ").append(exception);
     }
     return msg.toString();
   }
@@ -257,7 +260,7 @@ public class PushedNotification {
     return exception;
   }
 
-  void setException(Exception exception) {
+  void setException(final Exception exception) {
     this.exception = exception;
   }
 

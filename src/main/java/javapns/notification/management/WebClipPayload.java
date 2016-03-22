@@ -1,28 +1,26 @@
 package javapns.notification.management;
 
-import javapns.json.JSONException;
-import javapns.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * An MDM payload for WebClip.
  *
  * @author Sylvain Pedneault
  */
-public class WebClipPayload extends MobileConfigPayload {
-
-  public WebClipPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName, String url, String label) throws JSONException {
+class WebClipPayload extends MobileConfigPayload {
+  public WebClipPayload(final int payloadVersion, final String payloadOrganization, final String payloadIdentifier, final String payloadDisplayName, final String url, final String label) throws JSONException {
     super(payloadVersion, "com.apple.webClip.managed", payloadOrganization, payloadIdentifier, payloadDisplayName);
-    JSONObject payload = getPayload();
+    final JSONObject payload = getPayload();
     payload.put("URL", url);
     payload.put("Label", label);
   }
 
-  public void setIcon(Object data) throws JSONException {
+  public void setIcon(final Object data) throws JSONException {
     getPayload().put("Icon", data);
   }
 
-  public void setIsRemovable(boolean value) throws JSONException {
+  public void setIsRemovable(final boolean value) throws JSONException {
     getPayload().put("IsRemovable", value);
   }
-
 }

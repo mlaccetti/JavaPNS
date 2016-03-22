@@ -1,18 +1,14 @@
 package javapns.notification.exceptions;
 
 /**
- * Specific exception indicating that a payload exceeds the maximum size allowed.
- * <p/>
- * The maximum size allowed for PushNotification objects is the actual number
- * explicitely documented in Apple's APNS specifications.
- * <p/>
- * You do not need to catch this exception specifically, as it will be put in a
- * PushedNotification object as the exception that caused a push notification to having failed.
+ * Thrown when a payload exceeds the maximum size allowed.
  *
  * @author Sylvain Pedneault
  */
-@SuppressWarnings("serial")
+
 public class PayloadMaxSizeExceededException extends Exception {
+
+  private static final long serialVersionUID = 2896151447959250527L;
 
   /**
    * Default constructor
@@ -21,11 +17,11 @@ public class PayloadMaxSizeExceededException extends Exception {
     super("Total payload size exceeds allowed limit");
   }
 
-  public PayloadMaxSizeExceededException(int maxSize) {
+  public PayloadMaxSizeExceededException(final int maxSize) {
     super(String.format("Total payload size exceeds allowed limit (%s bytes max)", maxSize));
   }
 
-  public PayloadMaxSizeExceededException(int maxSize, int currentSize) {
+  public PayloadMaxSizeExceededException(final int maxSize, final int currentSize) {
     super(String.format("Total payload size exceeds allowed limit (payload is %s bytes, limit is %s)", currentSize, maxSize));
   }
 
@@ -34,7 +30,7 @@ public class PayloadMaxSizeExceededException extends Exception {
    *
    * @param message
    */
-  public PayloadMaxSizeExceededException(String message) {
+  public PayloadMaxSizeExceededException(final String message) {
     super(message);
   }
 

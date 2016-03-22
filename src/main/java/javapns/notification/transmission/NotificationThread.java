@@ -5,30 +5,25 @@ import javapns.communication.exceptions.KeystoreException;
 import javapns.devices.Device;
 import javapns.devices.Devices;
 import javapns.devices.exceptions.InvalidDeviceTokenFormatException;
-import javapns.notification.AppleNotificationServer;
-import javapns.notification.Payload;
-import javapns.notification.PayloadPerDevice;
-import javapns.notification.PushNotificationManager;
-import javapns.notification.PushedNotification;
-import javapns.notification.PushedNotifications;
+import javapns.notification.*;
 
 import java.util.List;
 import java.util.Vector;
 
 /**
  * <h1>Pushes payloads asynchroneously using a dedicated thread.</h1>
- * <p/>
+ * <p>
  * <p>A NotificationThread is created with one of two modes:  LIST or QUEUE.
  * In LIST mode, the thread is given a predefined list of devices and pushes all notifications as soon as it is started.  Its work is complete and the thread ends as soon as all notifications have been sent.
  * In QUEUE mode, the thread is started with no notification to send.  It opens a connection and waits for messages to be added to its queue using the addMessageToQueue(..) method.  This lifecyle is useful for creating connection pools.</p>
- * <p/>
+ * <p>
  * <p>No more than {@code maxNotificationsPerConnection} are pushed over a single connection.
  * When that maximum is reached, the connection is restarted automatically and push continues.
  * This is intended to avoid an undocumented notification-per-connection limit observed
  * occasionnally with Apple servers.</p>
- * <p/>
+ * <p>
  * <p>Usage (LIST): once a NotificationThread is created using any LIST-mode constructor, invoke {@code start()} to push the payload to all devices in a separate thread.</p>
- * <p/>
+ * <p>
  * <p>Usage (QUEUE): once a NotificationThread is created using any QUEUE-mode constructor, invoke {@code start()} to open a connection and wait for notifications to be queued.</p>
  *
  * @author Sylvain Pedneault
@@ -36,28 +31,31 @@ import java.util.Vector;
  * @see NotificationThreads
  */
 public class NotificationThread implements Runnable, PushQueue {
-
   private static final int DEFAULT_MAXNOTIFICATIONSPERCONNECTION = 200;
 
-  private Thread thread;
-  private boolean started;
-  private PushNotificationManager notificationManager;
-  private AppleNotificationServer server;
-  private int maxNotificationsPerConnection = NotificationThread.DEFAULT_MAXNOTIFICATIONSPERCONNECTION;
-  private long                         sleepBetweenNotifications;
+  private final Thread thread;
+  private final AppleNotificationServer server;
+  private final PushNotificationManager notificationManager;
+  private final PushedNotifications notifications = new PushedNotifications();
+
+  private boolean started = false;
+  private int maxNotificationsPerConnection = DEFAULT_MAXNOTIFICATIONSPERCONNECTION;
+  private long sleepBetweenNotifications = 0;
   private NotificationProgressListener listener;
-  private int                     threadNumber          = 1;
-  private int                     nextMessageIdentifier = 1;
-  private PushedNotifications     notifications         = new PushedNotifications();
-  private NotificationThread.MODE mode                  = NotificationThread.MODE.LIST;
-  private boolean busy;
-  private Object lockForPushedNotifications = new Object();
-  private boolean      newNotificationsAdded;
+  private int threadNumber = 1;
+  private int nextMessageIdentifier = 1;
+
+  private MODE mode = MODE.LIST;
+  private boolean busy = false;
+
   /* Single payload to multiple devices */
-  private Payload      payload;
+  private Payload payload;
+
   private List<Device> devices;
   /* Individual payload per device */
-  private List<PayloadPerDevice> messages = new Vector<PayloadPerDevice>();
+
+  private List<PayloadPerDevice> messages = new Vector<>();
+
   private Exception exception;
 
   /**
@@ -70,13 +68,13 @@ public class NotificationThread implements Runnable, PushQueue {
    * @param payload             a payload to push
    * @param devices             a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
    */
-  public NotificationThread(NotificationThreads threads, PushNotificationManager notificationManager, AppleNotificationServer server, Payload payload, Object devices) {
-    thread = new Thread(threads, this, "JavaPNS" + (threads != null ? " grouped" : " standalone") + " notification thread in LIST mode");
+  public NotificationThread(final NotificationThreads threads, final PushNotificationManager notificationManager, final AppleNotificationServer server, final Payload payload, final Object devices) {
+    this.thread = new Thread(threads, this, "JavaPNS" + (threads != null ? " grouped" : " standalone") + " notification thread in LIST mode");
     this.notificationManager = notificationManager == null ? new PushNotificationManager() : notificationManager;
     this.server = server;
     this.payload = payload;
     this.devices = Devices.asDevices(devices);
-    notifications.setMaxRetained(this.devices.size());
+    this.notifications.setMaxRetained(this.devices.size());
   }
 
   /**
@@ -88,12 +86,12 @@ public class NotificationThread implements Runnable, PushQueue {
    * @param server              the server to communicate with
    * @param messages            a list or an array of PayloadPerDevice: {@link java.util.List}<{@link javapns.notification.PayloadPerDevice}>, {@link javapns.notification.PayloadPerDevice PayloadPerDevice[]} or {@link javapns.notification.PayloadPerDevice}
    */
-  public NotificationThread(NotificationThreads threads, PushNotificationManager notificationManager, AppleNotificationServer server, Object messages) {
-    thread = new Thread(threads, this, "JavaPNS" + (threads != null ? " grouped" : " standalone") + " notification thread in LIST mode");
+  public NotificationThread(final NotificationThreads threads, final PushNotificationManager notificationManager, final AppleNotificationServer server, final Object messages) {
+    this.thread = new Thread(threads, this, "JavaPNS" + (threads != null ? " grouped" : " standalone") + " notification thread in LIST mode");
     this.notificationManager = notificationManager == null ? new PushNotificationManager() : notificationManager;
     this.server = server;
     this.messages = Devices.asPayloadsPerDevices(messages);
-    notifications.setMaxRetained(this.messages.size());
+    this.notifications.setMaxRetained(this.messages.size());
   }
 
   /**
@@ -104,7 +102,7 @@ public class NotificationThread implements Runnable, PushQueue {
    * @param payload             a payload to push
    * @param devices             a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
    */
-  public NotificationThread(PushNotificationManager notificationManager, AppleNotificationServer server, Payload payload, Object devices) {
+  public NotificationThread(final PushNotificationManager notificationManager, final AppleNotificationServer server, final Payload payload, final Object devices) {
     this(null, notificationManager, server, payload, devices);
   }
 
@@ -115,7 +113,7 @@ public class NotificationThread implements Runnable, PushQueue {
    * @param server              the server to communicate with
    * @param messages            a list or an array of PayloadPerDevice: {@link java.util.List}<{@link javapns.notification.PayloadPerDevice}>, {@link javapns.notification.PayloadPerDevice PayloadPerDevice[]} or {@link javapns.notification.PayloadPerDevice}
    */
-  public NotificationThread(PushNotificationManager notificationManager, AppleNotificationServer server, Object messages) {
+  public NotificationThread(final PushNotificationManager notificationManager, final AppleNotificationServer server, final Object messages) {
     this(null, notificationManager, server, messages);
   }
 
@@ -126,12 +124,12 @@ public class NotificationThread implements Runnable, PushQueue {
    * @param notificationManager the notification manager to use
    * @param server              the server to communicate with
    */
-  public NotificationThread(NotificationThreads threads, PushNotificationManager notificationManager, AppleNotificationServer server) {
-    thread = new Thread(threads, this, "JavaPNS" + (threads != null ? " grouped" : " standalone") + " notification thread in QUEUE mode");
+  public NotificationThread(final NotificationThreads threads, final PushNotificationManager notificationManager, final AppleNotificationServer server) {
+    this.thread = new Thread(threads, this, "JavaPNS" + (threads != null ? " grouped" : " standalone") + " notification thread in QUEUE mode");
     this.notificationManager = notificationManager == null ? new PushNotificationManager() : notificationManager;
     this.server = server;
-    mode = NotificationThread.MODE.QUEUE;
-    thread.setDaemon(true);
+    this.mode = MODE.QUEUE;
+    this.thread.setDaemon(true);
   }
 
   /**
@@ -140,7 +138,7 @@ public class NotificationThread implements Runnable, PushQueue {
    * @param notificationManager the notification manager to use
    * @param server              the server to communicate with
    */
-  public NotificationThread(PushNotificationManager notificationManager, AppleNotificationServer server) {
+  public NotificationThread(final PushNotificationManager notificationManager, final AppleNotificationServer server) {
     this(null, notificationManager, server);
   }
 
@@ -149,21 +147,24 @@ public class NotificationThread implements Runnable, PushQueue {
    *
    * @param server the server to communicate with
    */
-  public NotificationThread(AppleNotificationServer server) {
+  public NotificationThread(final AppleNotificationServer server) {
     this(null, new PushNotificationManager(), server);
   }
 
   /**
    * Start the transmission thread.
-   * <p/>
+   * <p>
    * This method returns immediately, as the thread starts working on its own.
    */
   public synchronized NotificationThread start() {
-    if (started) return this;
+    if (started) {
+      return this;
+    }
     started = true;
     try {
-      thread.start();
-    } catch (IllegalStateException e) {
+      this.thread.start();
+    } catch (final IllegalStateException e) {
+      // empty
     }
     return this;
   }
@@ -185,114 +186,128 @@ public class NotificationThread implements Runnable, PushQueue {
   }
 
   private void runList() {
-    if (listener != null) listener.eventThreadStarted(this);
+    if (listener != null) {
+      listener.eventThreadStarted(this);
+    }
     busy = true;
     try {
-      int total = size();
+      final int total = size();
       notificationManager.initializeConnection(server);
       for (int i = 0; i < total; i++) {
-        Device device;
-        Payload payload;
+        final Device device;
+        final Payload payload;
         if (devices != null) {
           device = devices.get(i);
           payload = this.payload;
         } else {
-          PayloadPerDevice message = messages.get(i);
+          final PayloadPerDevice message = messages.get(i);
           device = message.getDevice();
           payload = message.getPayload();
         }
-        int message = newMessageIdentifier();
-        PushedNotification notification = notificationManager.sendNotification(device, payload, false, message);
-        synchronized (lockForPushedNotifications) {
-          notifications.add(notification);
-          newNotificationsAdded = true;
-        }
+        final int message = newMessageIdentifier();
+        final PushedNotification notification = notificationManager.sendNotification(device, payload, false, message);
+        notifications.add(notification);
         try {
-          if (sleepBetweenNotifications > 0) Thread.sleep(sleepBetweenNotifications);
-        } catch (InterruptedException e) {
+          if (sleepBetweenNotifications > 0) {
+            Thread.sleep(sleepBetweenNotifications);
+          }
+        } catch (final InterruptedException e) {
+          // empty
         }
         if (i != 0 && i % maxNotificationsPerConnection == 0) {
-          if (listener != null) listener.eventConnectionRestarted(this);
+          if (listener != null) {
+            listener.eventConnectionRestarted(this);
+          }
           notificationManager.restartConnection(server);
         }
       }
       notificationManager.stopConnection();
-    } catch (KeystoreException e) {
-      exception = e;
-      if (listener != null) listener.eventCriticalException(this, e);
-    } catch (CommunicationException e) {
-      exception = e;
-      if (listener != null) listener.eventCriticalException(this, e);
+    } catch (final KeystoreException | CommunicationException e) {
+      this.exception = e;
+      if (listener != null) {
+        listener.eventCriticalException(this, e);
+      }
     }
     busy = false;
-    if (listener != null) listener.eventThreadFinished(this);
+    if (listener != null) {
+      listener.eventThreadFinished(this);
+    }
     /* Also notify the parent NotificationThreads, so that it can determine when all threads have finished working */
-    if (thread.getThreadGroup() instanceof NotificationThreads) ((NotificationThreads) thread.getThreadGroup()).threadFinished(this);
+    if (this.thread.getThreadGroup() instanceof NotificationThreads) {
+      ((NotificationThreads) this.thread.getThreadGroup()).threadFinished(this);
+    }
   }
 
   private void runQueue() {
-    if (listener != null) listener.eventThreadStarted(this);
+    if (listener != null) {
+      listener.eventThreadStarted(this);
+    }
     try {
       notificationManager.initializeConnection(server);
       int notificationsPushed = 0;
-      while (mode == NotificationThread.MODE.QUEUE) {
+      while (mode == MODE.QUEUE) {
         while (!messages.isEmpty()) {
           busy = true;
-          PayloadPerDevice message = messages.get(0);
+          final PayloadPerDevice message = messages.get(0);
           messages.remove(message);
           notificationsPushed++;
-          int messageId = newMessageIdentifier();
-          PushedNotification notification = notificationManager.sendNotification(message.getDevice(), message.getPayload(), false, messageId);
-          synchronized (lockForPushedNotifications) {
-            notifications.add(notification);
-            newNotificationsAdded = true;
-          }
+          final int messageId = newMessageIdentifier();
+          final PushedNotification notification = notificationManager.sendNotification(message.getDevice(), message.getPayload(), false, messageId);
+          notifications.add(notification);
           try {
-            if (sleepBetweenNotifications > 0) Thread.sleep(sleepBetweenNotifications);
-          } catch (InterruptedException e) {
+            if (sleepBetweenNotifications > 0) {
+              Thread.sleep(sleepBetweenNotifications);
+            }
+          } catch (final InterruptedException e) {
+            // empty
           }
           if (notificationsPushed != 0 && notificationsPushed % maxNotificationsPerConnection == 0) {
-            if (listener != null) listener.eventConnectionRestarted(this);
+            if (listener != null) {
+              listener.eventConnectionRestarted(this);
+            }
             notificationManager.restartConnection(server);
           }
           busy = false;
         }
         try {
           Thread.sleep(10 * 1000);
-        } catch (Exception e) {
+        } catch (final Exception e) {
+          // empty
         }
       }
       notificationManager.stopConnection();
-    } catch (KeystoreException e) {
-      exception = e;
-      if (listener != null) listener.eventCriticalException(this, e);
-    } catch (CommunicationException e) {
-      exception = e;
-      if (listener != null) listener.eventCriticalException(this, e);
+    } catch (final KeystoreException | CommunicationException e) {
+      this.exception = e;
+      if (listener != null) {
+        listener.eventCriticalException(this, e);
+      }
     }
-    if (listener != null) listener.eventThreadFinished(this);
-		/* Also notify the parent NotificationThreads, so that it can determine when all threads have finished working */
-    if (thread.getThreadGroup() instanceof NotificationThreads) ((NotificationThreads) thread.getThreadGroup()).threadFinished(this);
+    if (listener != null) {
+      listener.eventThreadFinished(this);
+    }
+    /* Also notify the parent NotificationThreads, so that it can determine when all threads have finished working */
+    if (this.thread.getThreadGroup() instanceof NotificationThreads) {
+      ((NotificationThreads) this.thread.getThreadGroup()).threadFinished(this);
+    }
   }
 
-  public void stopQueue() {
-    mode = NotificationThread.MODE.STOP;
-  }
-
-  public PushQueue add(Payload payload, String token) throws InvalidDeviceTokenFormatException {
+  public PushQueue add(final Payload payload, final String token) throws InvalidDeviceTokenFormatException {
     return add(new PayloadPerDevice(payload, token));
   }
 
-  public PushQueue add(Payload payload, Device device) {
+  public PushQueue add(final Payload payload, final Device device) {
     return add(new PayloadPerDevice(payload, device));
   }
 
-  public PushQueue add(PayloadPerDevice message) {
-    if (mode != NotificationThread.MODE.QUEUE) return this;
+  public PushQueue add(final PayloadPerDevice message) {
+    if (mode != MODE.QUEUE) {
+      return this;
+    }
     try {
       messages.add(message);
-      thread.interrupt();
-    } catch (Exception e) {
+      this.thread.interrupt();
+    } catch (final Exception e) {
+      // empty
     }
     return this;
   }
@@ -305,12 +320,12 @@ public class NotificationThread implements Runnable, PushQueue {
    * Set a maximum number of notifications that should be streamed over a continuous connection
    * to an Apple server.  When that maximum is reached, the thread automatically closes and
    * reopens a fresh new connection to the server and continues streaming notifications.
-   * <p/>
+   * <p>
    * Default is 200 (recommended).
    *
    * @param maxNotificationsPerConnection
    */
-  public void setMaxNotificationsPerConnection(int maxNotificationsPerConnection) {
+  public void setMaxNotificationsPerConnection(final int maxNotificationsPerConnection) {
     this.maxNotificationsPerConnection = maxNotificationsPerConnection;
   }
 
@@ -322,13 +337,13 @@ public class NotificationThread implements Runnable, PushQueue {
    * Set a delay the thread should sleep between each notification.
    * This is sometimes useful when communication with Apple servers is
    * unreliable and notifications are streaming too fast.
-   * <p/>
+   * <p>
    * Default is 0.
    *
    * @param milliseconds
    */
-  public void setSleepBetweenNotifications(long milliseconds) {
-    sleepBetweenNotifications = milliseconds;
+  public void setSleepBetweenNotifications(final long milliseconds) {
+    this.sleepBetweenNotifications = milliseconds;
   }
 
   /**
@@ -340,7 +355,7 @@ public class NotificationThread implements Runnable, PushQueue {
     return devices;
   }
 
-  void setDevices(List<Device> devices) {
+  void setDevices(final List<Device> devices) {
     this.devices = devices;
   }
 
@@ -349,7 +364,7 @@ public class NotificationThread implements Runnable, PushQueue {
    *
    * @return the number of devices registered with this thread
    */
-  public int size() {
+  private int size() {
     return devices != null ? devices.size() : messages.size();
   }
 
@@ -362,7 +377,7 @@ public class NotificationThread implements Runnable, PushQueue {
    *
    * @param listener any object implementing the NotificationProgressListener interface
    */
-  public void setListener(NotificationProgressListener listener) {
+  public void setListener(final NotificationProgressListener listener) {
     this.listener = listener;
   }
 
@@ -381,7 +396,7 @@ public class NotificationThread implements Runnable, PushQueue {
    *
    * @param threadNumber
    */
-  protected void setThreadNumber(int threadNumber) {
+  void setThreadNumber(final int threadNumber) {
     this.threadNumber = threadNumber;
   }
 
@@ -390,8 +405,8 @@ public class NotificationThread implements Runnable, PushQueue {
    *
    * @return a message identifier unique to all NotificationThread objects
    */
-  public int newMessageIdentifier() {
-    return threadNumber << 24 | nextMessageIdentifier++;
+  private int newMessageIdentifier() {
+    return (threadNumber << 24) | nextMessageIdentifier++;
   }
 
   /**
@@ -400,7 +415,7 @@ public class NotificationThread implements Runnable, PushQueue {
    * @return a message identifier unique to all NotificationThread objects
    */
   public int getFirstMessageIdentifier() {
-    return threadNumber << 24 | 1;
+    return (threadNumber << 24) | 1;
   }
 
   /**
@@ -409,39 +424,22 @@ public class NotificationThread implements Runnable, PushQueue {
    * @return a message identifier unique to all NotificationThread objects
    */
   public int getLastMessageIdentifier() {
-    return threadNumber << 24 | size();
+    return (threadNumber << 24) | size();
   }
 
   /**
-   * Returns a list of all notifications pushed by this thread (successful or not).
-   * <p/>
-   * IMPORTANT: Invoking this method on a QUEUE causes a connection restart to get an opportunity
-   * to receive error-response packets (if any) which might affect the result of this method.
+   * Returns list of all notifications pushed by this thread (successful or not).
    *
-   * @param clearList indicate if the internal list of pushed notifications should be emptied (recommended)
    * @return a list of pushed notifications
    */
-  public PushedNotifications getPushedNotifications(boolean clearList) {
-    synchronized (lockForPushedNotifications) {
-      if (notifications.size() == 0 || !newNotificationsAdded) return new PushedNotifications();
-      restartQueue();
-      PushedNotifications all = new PushedNotifications(notifications.size());
-      all.addAll(notifications);
-      if (clearList) {
-        notifications.clear();
-        newNotificationsAdded = false;
-      }
-      return all;
-    }
+  public PushedNotifications getPushedNotifications() {
+    return notifications;
   }
 
   /**
    * Clear the internal list of PushedNotification objects.
    * You should invoke this method once you no longer need the list of PushedNotification objects so that memory can be reclaimed.
-   *
-   * @deprecated Not thead-safe.  use getPushedNotifications(true) instead.
    */
-  @Deprecated
   public void clearPushedNotifications() {
     notifications.clear();
   }
@@ -450,22 +448,18 @@ public class NotificationThread implements Runnable, PushQueue {
    * Returns list of all notifications that this thread attempted to push but that failed.
    *
    * @return a list of failed notifications
-   * @deprecated Not thead-safe.  use getPushedNotifications(true).getFailedNotifications() instead.
    */
-  @Deprecated
   public PushedNotifications getFailedNotifications() {
-    return getPushedNotifications(false).getFailedNotifications();
+    return getPushedNotifications().getFailedNotifications();
   }
 
   /**
    * Returns list of all notifications that this thread attempted to push and succeeded.
    *
    * @return a list of failed notifications
-   * @deprecated Not thead-safe.  use getPushedNotifications(true).getSuccessfulNotifications() instead.
    */
-  @Deprecated
   public PushedNotifications getSuccessfulNotifications() {
-    return getPushedNotifications(false).getSuccessfulNotifications();
+    return getPushedNotifications().getSuccessfulNotifications();
   }
 
   /**
@@ -482,7 +476,7 @@ public class NotificationThread implements Runnable, PushQueue {
    *
    * @param messages
    */
-  void setMessages(List<PayloadPerDevice> messages) {
+  void setMessages(final List<PayloadPerDevice> messages) {
     this.messages = messages;
   }
 
@@ -497,14 +491,10 @@ public class NotificationThread implements Runnable, PushQueue {
 
   /**
    * If this thread experienced a critical exception (communication error, keystore issue, etc.), this method returns the exception.
-   * <p/>
-   * IMPORTANT: Invoking this method on a QUEUE causes a connection restart to get an opportunity
-   * to receive error-response packets (if any) which might affect the result of this method.
    *
    * @return a critical exception, if one occurred in this thread
    */
   public Exception getCriticalException() {
-    restartQueue();
     return exception;
   }
 
@@ -514,20 +504,11 @@ public class NotificationThread implements Runnable, PushQueue {
    * @return a list containing a critical exception, if any occurred
    */
   public List<Exception> getCriticalExceptions() {
-    Exception theException = getCriticalException();
-    List<Exception> exceptions = new Vector<Exception>(theException == null ? 0 : 1);
-    if (theException != null) exceptions.add(theException);
-    return exceptions;
-  }
-
-  private void restartQueue() {
-    if (mode != NotificationThread.MODE.QUEUE && mode != NotificationThread.MODE.STOP) return;
-    try {
-      if (listener != null) listener.eventConnectionRestarted(this);
-      notificationManager.restartConnection(server);
-    } catch (Exception e) {
-      if (exception == null) exception = e;
+    final List<Exception> exceptions = new Vector<>(exception == null ? 0 : 1);
+    if (exception != null) {
+      exceptions.add(exception);
     }
+    return exceptions;
   }
 
   /**
@@ -547,12 +528,6 @@ public class NotificationThread implements Runnable, PushQueue {
      * This mode is appropriate when you need to periodically send random individual notifications and you do not wish to open and close connections to Apple all the time (which is something Apple warns against in their documentation).
      * Unless your software is constantly generating large amounts of random notifications and that you absolutely need to stream them over multiple threaded connections, you should not need to create more than one NotificationThread in QUEUE mode.
      */
-    QUEUE,
-
-    /**
-     * Mode used to stop a queue gracefully.
-     */
-    STOP
+    QUEUE
   }
-
 }

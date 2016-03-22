@@ -1,36 +1,36 @@
 package javapns.notification.management;
 
-import javapns.json.JSONException;
-import javapns.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * An MDM payload for CalDAV.
  *
  * @author Sylvain Pedneault
  */
-public class CalDAVPayload extends MobileConfigPayload {
+class CalDAVPayload extends MobileConfigPayload {
 
-  public CalDAVPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName, String calDAVHostName, String calDAVUsername, boolean calDAVUseSSL) throws JSONException {
+  public CalDAVPayload(final int payloadVersion, final String payloadOrganization, final String payloadIdentifier, final String payloadDisplayName, final String calDAVHostName, final String calDAVUsername, final boolean calDAVUseSSL) throws JSONException {
     super(payloadVersion, "com.apple.caldav.account", payloadOrganization, payloadIdentifier, payloadDisplayName);
-    JSONObject payload = getPayload();
+    final JSONObject payload = getPayload();
     payload.put("CalDAVHostName", calDAVHostName);
     payload.put("CalDAVUsername", calDAVUsername);
     payload.put("CalDAVUseSSL", calDAVUseSSL);
   }
 
-  public void setCalDAVAccountDescription(String value) throws JSONException {
+  public void setCalDAVAccountDescription(final String value) throws JSONException {
     getPayload().put("CalDAVAccountDescription", value);
   }
 
-  public void setCalDAVPassword(String value) throws JSONException {
+  public void setCalDAVPassword(final String value) throws JSONException {
     getPayload().put("CalDAVPassword", value);
   }
 
-  public void setCalDAVPort(int value) throws JSONException {
+  public void setCalDAVPort(final int value) throws JSONException {
     getPayload().put("CalDAVPort", value);
   }
 
-  public void setCalDAVPrincipalURL(String value) throws JSONException {
+  public void setCalDAVPrincipalURL(final String value) throws JSONException {
     getPayload().put("CalDAVPrincipalURL", value);
   }
 

@@ -11,8 +11,8 @@ import javapns.communication.exceptions.KeystoreException;
  * @author Sylvain Pedneault
  */
 public class AppleNotificationServerBasicImpl extends AppleServerBasicImpl implements AppleNotificationServer {
-  private String host;
-  private int    port;
+  private final String host;
+  private final int port;
 
   /**
    * Communication settings for interacting with Apple's default production or sandbox notification server.
@@ -23,8 +23,8 @@ public class AppleNotificationServerBasicImpl extends AppleServerBasicImpl imple
    * @param production true to use Apple's production servers, false to use the sandbox
    * @throws KeystoreException thrown if an error occurs when loading the keystore
    */
-  public AppleNotificationServerBasicImpl(Object keystore, String password, boolean production) throws KeystoreException {
-    this(keystore, password, ConnectionToAppleServer.getKeystoreType(), production);
+  public AppleNotificationServerBasicImpl(final Object keystore, final String password, final boolean production) throws KeystoreException {
+    this(keystore, password, ConnectionToAppleServer.KEYSTORE_TYPE_PKCS12, production);
   }
 
   /**
@@ -36,8 +36,8 @@ public class AppleNotificationServerBasicImpl extends AppleServerBasicImpl imple
    * @param production true to use Apple's production servers, false to use the sandbox
    * @throws KeystoreException thrown if an error occurs when loading the keystore
    */
-  public AppleNotificationServerBasicImpl(Object keystore, String password, String type, boolean production) throws KeystoreException {
-    this(keystore, password, type, production ? AppleNotificationServer.PRODUCTION_HOST : AppleNotificationServer.DEVELOPMENT_HOST, production ? AppleNotificationServer.PRODUCTION_PORT : AppleNotificationServer.DEVELOPMENT_PORT);
+  private AppleNotificationServerBasicImpl(final Object keystore, final String password, final String type, final boolean production) throws KeystoreException {
+    this(keystore, password, type, production ? PRODUCTION_HOST : DEVELOPMENT_HOST, production ? PRODUCTION_PORT : DEVELOPMENT_PORT);
   }
 
   /**
@@ -50,7 +50,7 @@ public class AppleNotificationServerBasicImpl extends AppleServerBasicImpl imple
    * @param port     a specific APNS port
    * @throws KeystoreException thrown if an error occurs when loading the keystore
    */
-  public AppleNotificationServerBasicImpl(Object keystore, String password, String type, String host, int port) throws KeystoreException {
+  private AppleNotificationServerBasicImpl(final Object keystore, final String password, final String type, final String host, final int port) throws KeystoreException {
     super(keystore, password, type);
     this.host = host;
     this.port = port;

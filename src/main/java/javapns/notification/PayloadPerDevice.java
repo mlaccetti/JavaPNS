@@ -11,16 +11,17 @@ import javapns.devices.implementations.basic.BasicDevice;
  * @author Sylvain Pedneault
  */
 public class PayloadPerDevice {
+  private final Payload payload;
+  private final Device device;
 
-  private Payload payload;
-  private Device  device;
-
-  public PayloadPerDevice(Payload payload, String token) throws InvalidDeviceTokenFormatException {
+  public PayloadPerDevice(final Payload payload, final String token) throws InvalidDeviceTokenFormatException {
+    super();
     this.payload = payload;
-    device = new BasicDevice(token);
+    this.device = new BasicDevice(token);
   }
 
-  public PayloadPerDevice(Payload payload, Device device) {
+  public PayloadPerDevice(final Payload payload, final Device device) {
+    super();
     this.payload = payload;
     this.device = device;
   }

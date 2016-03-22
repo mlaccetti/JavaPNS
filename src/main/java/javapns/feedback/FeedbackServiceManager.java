@@ -23,15 +23,12 @@ import java.util.LinkedList;
  * @author kljajo, dgardon, Sylvain Pedneault
  */
 public class FeedbackServiceManager {
-  protected static final Logger logger = LoggerFactory.getLogger(FeedbackServiceManager.class);
+
+  private static final Logger logger = LoggerFactory.getLogger(FeedbackServiceManager.class);
 
   /* Length of the tuple sent by Apple */
   private static final int FEEDBACK_TUPLE_SIZE = 38;
-  /*
-   * Number of milliseconds to use as socket timeout.
-   * Set to -1 to leave the timeout to its default setting.
-   */
-  private              int sslSocketTimeout    = 30 * 1000;
+
   @Deprecated
   private DeviceFactory deviceFactory;
 
@@ -41,8 +38,8 @@ public class FeedbackServiceManager {
    * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
-  public FeedbackServiceManager(DeviceFactory deviceFactory) {
-    setDeviceFactory(deviceFactory);
+  private FeedbackServiceManager(final DeviceFactory deviceFactory) {
+    this.setDeviceFactory(deviceFactory);
   }
 
   /**
@@ -50,7 +47,7 @@ public class FeedbackServiceManager {
    */
   @SuppressWarnings("deprecation")
   public FeedbackServiceManager() {
-    setDeviceFactory(new BasicDeviceFactory());
+    this.setDeviceFactory(new BasicDeviceFactory());
   }
 
   /**
@@ -70,9 +67,9 @@ public class FeedbackServiceManager {
    * @throws KeystoreException
    * @throws CommunicationException
    */
-  public LinkedList<Device> getDevices(AppleFeedbackServer server) throws KeystoreException, CommunicationException {
-    ConnectionToFeedbackServer connectionHelper = new ConnectionToFeedbackServer(server);
-    SSLSocket socket = connectionHelper.getSSLSocket();
+  public LinkedList<Device> getDevices(final AppleFeedbackServer server) throws KeystoreException, CommunicationException {
+    final ConnectionToFeedbackServer connectionHelper = new ConnectionToFeedbackServer(server);
+    final SSLSocket socket = connectionHelper.getSSLSocket();
     return getDevices(socket);
   }
 
@@ -83,80 +80,95 @@ public class FeedbackServiceManager {
    * @return Devices
    * @throws CommunicationException
    */
-  private LinkedList<Device> getDevices(SSLSocket socket) throws CommunicationException {
+  private LinkedList<Device> getDevices(final SSLSocket socket) throws CommunicationException {
 
     // Compute
     LinkedList<Device> listDev = null;
     try {
-      InputStream socketStream = socket.getInputStream();
-      if (sslSocketTimeout > 0) socket.setSoTimeout(sslSocketTimeout);
+      final InputStream socketStream = socket.getInputStream();
 
       // Read bytes
-      byte[] b = new byte[1024];
-      ByteArrayOutputStream message = new ByteArrayOutputStream();
-      int nbBytes = 0;
+      final byte[] b = new byte[1024];
+      final ByteArrayOutputStream message = new ByteArrayOutputStream();
+      int nbBytes;
       // socketStream.available can return 0
       // http://forums.sun.com/thread.jspa?threadID=5428561
       while ((nbBytes = socketStream.read(b, 0, 1024)) != -1) {
         message.write(b, 0, nbBytes);
       }
 
-      listDev = new LinkedList<Device>();
-      byte[] listOfDevices = message.toByteArray();
-      int nbTuples = listOfDevices.length / FeedbackServiceManager.FEEDBACK_TUPLE_SIZE;
-      FeedbackServiceManager.logger.debug("Found: [" + nbTuples + "]");
+      listDev = new LinkedList<>();
+      final byte[] listOfDevices = message.toByteArray();
+      final int nbTuples = listOfDevices.length / FEEDBACK_TUPLE_SIZE;
+      logger.debug("Found: [" + nbTuples + "]");
       for (int i = 0; i < nbTuples; i++) {
-        int offset = i * FeedbackServiceManager.FEEDBACK_TUPLE_SIZE;
+        final int offset = i * FEEDBACK_TUPLE_SIZE;
 
         // Build date
-        int index = 0;
-        int firstByte = 0;
-        int secondByte = 0;
-        int thirdByte = 0;
-        int fourthByte = 0;
-        long anUnsignedInt = 0;
+        final int firstByte;
+        final int secondByte;
+        final int thirdByte;
+        final int fourthByte;
+        final long anUnsignedInt;
 
-        firstByte = 0x000000FF & (int) listOfDevices[offset];
-        secondByte = 0x000000FF & (int) listOfDevices[offset + 1];
-        thirdByte = 0x000000FF & (int) listOfDevices[offset + 2];
-        fourthByte = 0x000000FF & (int) listOfDevices[offset + 3];
-        index = index + 4;
-        anUnsignedInt = (long) (firstByte << 24 | secondByte << 16 | thirdByte << 8 | fourthByte) & 0xFFFFFFFFL;
-        Timestamp timestamp = new Timestamp(anUnsignedInt * 1000);
+        firstByte = (0x000000FF & ((int) listOfDevices[offset]));
+        secondByte = (0x000000FF & ((int) listOfDevices[offset + 1]));
+        thirdByte = (0x000000FF & ((int) listOfDevices[offset + 2]));
+        fourthByte = (0x000000FF & ((int) listOfDevices[offset + 3]));
+        anUnsignedInt = ((long) (firstByte << 24 | secondByte << 16 | thirdByte << 8 | fourthByte)) & 0xFFFFFFFFL;
+        final Timestamp timestamp = new Timestamp(anUnsignedInt * 1000);
 
         // Build device token length
-        int deviceTokenLength = listOfDevices[offset + 4] << 8 | listOfDevices[offset + 5];
+        final int deviceTokenLength = listOfDevices[offset + 4] << 8 | listOfDevices[offset + 5];
 
         // Build device token
         String deviceToken = "";
-        int octet = 0;
+        int octet;
         for (int j = 0; j < 32; j++) {
-          octet = 0x000000FF & (int) listOfDevices[offset + 6 + j];
+          octet = (0x000000FF & ((int) listOfDevices[offset + 6 + j]));
           deviceToken = deviceToken.concat(String.format("%02x", octet));
         }
 
         // Build device and add to list
         /* Create a basic device, as we do not want to go through the factory and create a device in the actual database... */
-        Device device = new BasicDevice();
+        final Device device = new BasicDevice();
         device.setToken(deviceToken);
         device.setLastRegister(timestamp);
         listDev.add(device);
-        FeedbackServiceManager.logger.info("FeedbackManager retrieves one device :  " + timestamp + ";" + deviceTokenLength + ";" + deviceToken + ".");
+        logger.info("FeedbackManager retrieves one device :  " + timestamp + ";" + deviceTokenLength + ";" + deviceToken + ".");
       }
 
       // Close the socket and return the list
 
-    } catch (Exception e) {
-      FeedbackServiceManager.logger.debug("Caught exception fetching devices from Feedback Service");
+    } catch (final Exception e) {
+      logger.debug("Caught exception fetching devices from Feedback Service");
       throw new CommunicationException("Problem communicating with Feedback service", e);
     } finally {
       try {
         socket.close();
-      } catch (Exception e) {
+      } catch (final Exception e) {
+        // empty
       }
     }
     return listDev;
   }
+
+  //  /**
+  //   * Set the proxy if needed
+  //   * @param host the proxyHost
+  //   * @param port the proxyPort
+  //   * @deprecated Configuring a proxy with this method affects overall JVM proxy settings.
+  //   * Use AppleFeedbackServer.setProxy(..) to set a proxy for JavaPNS only.
+  //   */
+  //  public void setProxy(String host, String port) {
+  //    this.proxySet = true;
+  //
+  //    System.setProperty("http.proxyHost", host);
+  //    System.setProperty("http.proxyPort", port);
+  //
+  //    System.setProperty("https.proxyHost", host);
+  //    System.setProperty("https.proxyPort", port);
+  //  }
 
   /**
    * @return a device factory
@@ -172,26 +184,7 @@ public class FeedbackServiceManager {
    * @deprecated The DeviceFactory-based architecture is deprecated.
    */
   @Deprecated
-  public void setDeviceFactory(DeviceFactory deviceFactory) {
+  private void setDeviceFactory(final DeviceFactory deviceFactory) {
     this.deviceFactory = deviceFactory;
   }
-
-  /**
-   * Get the SSL socket timeout currently in use.
-   *
-   * @return the current SSL socket timeout value.
-   */
-  public int getSslSocketTimeout() {
-    return sslSocketTimeout;
-  }
-
-  /**
-   * Set the SSL socket timeout to use.
-   *
-   * @param sslSocketTimeout
-   */
-  public void setSslSocketTimeout(int sslSocketTimeout) {
-    this.sslSocketTimeout = sslSocketTimeout;
-  }
-
 }

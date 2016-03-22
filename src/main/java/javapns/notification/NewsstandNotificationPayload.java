@@ -1,7 +1,7 @@
 package javapns.notification;
 
-import javapns.json.JSONException;
-import javapns.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A Newsstand-specific payload compatible with the Apple Push Notification Service.
@@ -9,19 +9,19 @@ import javapns.json.JSONObject;
  * @author Sylvain Pedneault
  */
 public class NewsstandNotificationPayload extends Payload {
-
   /* The application Dictionnary */
-  private JSONObject apsDictionary;
+  private final JSONObject apsDictionary;
 
   /**
    * Create a default payload with a blank "aps" dictionary.
    */
-  NewsstandNotificationPayload() {
-    apsDictionary = new JSONObject();
+  private NewsstandNotificationPayload() {
+    super();
+    this.apsDictionary = new JSONObject();
     try {
-      JSONObject payload = getPayload();
-      payload.put("aps", apsDictionary);
-    } catch (JSONException e) {
+      final JSONObject payload = getPayload();
+      payload.put("aps", this.apsDictionary);
+    } catch (final JSONException e) {
       e.printStackTrace();
     }
   }
@@ -32,10 +32,11 @@ public class NewsstandNotificationPayload extends Payload {
    * @return a ready-to-send newsstand payload
    */
   public static NewsstandNotificationPayload contentAvailable() {
-    NewsstandNotificationPayload payload = NewsstandNotificationPayload.complex();
+    final NewsstandNotificationPayload payload = complex();
     try {
       payload.addContentAvailable();
-    } catch (JSONException e) {
+    } catch (final JSONException e) {
+      // empty
     }
     return payload;
   }
@@ -49,17 +50,17 @@ public class NewsstandNotificationPayload extends Payload {
    * @return a blank payload that can be customized
    */
   private static NewsstandNotificationPayload complex() {
-    NewsstandNotificationPayload payload = new NewsstandNotificationPayload();
+    final NewsstandNotificationPayload payload = new NewsstandNotificationPayload();
     return payload;
   }
 
-  void addContentAvailable() throws JSONException {
+  private void addContentAvailable() throws JSONException {
     addContentAvailable(1);
   }
 
-  void addContentAvailable(int contentAvailable) throws JSONException {
-    Payload.logger.debug("Adding ContentAvailable [" + contentAvailable + "]");
-    apsDictionary.put("content-available", contentAvailable);
+  private void addContentAvailable(final int contentAvailable) throws JSONException {
+    logger.debug("Adding ContentAvailable [" + contentAvailable + "]");
+    this.apsDictionary.put("content-available", contentAvailable);
   }
 
 }

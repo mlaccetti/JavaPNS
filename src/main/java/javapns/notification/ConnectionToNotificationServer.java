@@ -11,12 +11,11 @@ import java.security.KeyStore;
  * @author Sylvain Pedneault
  */
 public class ConnectionToNotificationServer extends ConnectionToAppleServer {
-
-  public ConnectionToNotificationServer(AppleNotificationServer server) throws KeystoreException {
+  public ConnectionToNotificationServer(final AppleNotificationServer server) throws KeystoreException {
     super(server);
   }
 
-  public ConnectionToNotificationServer(AppleNotificationServer server, KeyStore keystore) {
+  public ConnectionToNotificationServer(final AppleNotificationServer server, final KeyStore keystore) throws KeystoreException {
     super(server, keystore);
   }
 

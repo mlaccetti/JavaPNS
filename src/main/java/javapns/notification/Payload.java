@@ -1,9 +1,9 @@
 package javapns.notification;
 
-import javapns.json.JSONException;
-import javapns.json.JSONObject;
 import javapns.notification.exceptions.PayloadMaxSizeExceededException;
 import javapns.notification.exceptions.PayloadMaxSizeProbablyExceededException;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Abstract class representing a payload that can be transmitted to Apple.
- * <p/>
+ * <p>
  * By default, this class has no payload content at all.  Subclasses are
  * responsible for imposing specific content based on the specifications
  * they are intended to implement (such as the 'aps' dictionnary for APS
@@ -20,28 +20,30 @@ import java.util.List;
  * @author Sylvain Pedneault
  */
 public abstract class Payload {
-  protected static final Logger logger                     = LoggerFactory.getLogger(Payload.class);
+  static final Logger logger = LoggerFactory.getLogger(Payload.class);
 
   /* Character encoding specified by Apple documentation */
-  private static final   String DEFAULT_CHARACTER_ENCODING = "UTF-8";
-
+  private static final String DEFAULT_CHARACTER_ENCODING = "UTF-8";
   /* The root Payload */
-  private JSONObject payload;
+  private final JSONObject payload;
 
   /* Character encoding to use for streaming the payload (should be UTF-8) */
   private String characterEncoding = DEFAULT_CHARACTER_ENCODING;
 
   /* Number of seconds after which this payload should expire */
+  @SuppressWarnings("PointlessArithmeticExpression")
   private int expiry = 1 * 24 * 60 * 60;
 
-  private boolean payloadSizeEstimatedWhenAdding;
-  private int preSendConfiguration;
+  private boolean payloadSizeEstimatedWhenAdding = false;
+
+  private int preSendConfiguration = 0;
 
   /**
    * Construct a Payload object with a blank root JSONObject
    */
-  public Payload() {
-    payload = new JSONObject();
+  protected Payload() {
+    super();
+    this.payload = new JSONObject();
   }
 
   /**
@@ -50,8 +52,9 @@ public abstract class Payload {
    * @param rawJSON a JSON-formatted string (ex: {"aps":{"alert":"Hello World!"}} )
    * @throws JSONException thrown if a exception occurs while parsing the JSON string
    */
-  public Payload(String rawJSON) throws JSONException {
-    payload = new JSONObject(rawJSON);
+  Payload(final String rawJSON) throws JSONException {
+    super();
+    this.payload = new JSONObject(rawJSON);
   }
 
   /**
@@ -60,7 +63,7 @@ public abstract class Payload {
    * @return a JSONObject
    */
   public JSONObject getPayload() {
-    return payload;
+    return this.payload;
   }
 
   /**
@@ -70,8 +73,8 @@ public abstract class Payload {
    * @param value
    * @throws JSONException
    */
-  public void addCustomDictionary(String name, String value) throws JSONException {
-    Payload.logger.debug("Adding custom Dictionary [" + name + "] = [" + value + "]");
+  public void addCustomDictionary(final String name, final String value) throws JSONException {
+    logger.debug("Adding custom Dictionary [" + name + "] = [" + value + "]");
     put(name, value, payload, false);
   }
 
@@ -82,8 +85,8 @@ public abstract class Payload {
    * @param value
    * @throws JSONException
    */
-  public void addCustomDictionary(String name, int value) throws JSONException {
-    Payload.logger.debug("Adding custom Dictionary [" + name + "] = [" + value + "]");
+  public void addCustomDictionary(final String name, final int value) throws JSONException {
+    logger.debug("Adding custom Dictionary [" + name + "] = [" + value + "]");
     put(name, value, payload, false);
   }
 
@@ -94,21 +97,37 @@ public abstract class Payload {
    * @param values
    * @throws JSONException
    */
-  public void addCustomDictionary(String name, List values) throws JSONException {
-    Payload.logger.debug("Adding custom Dictionary [" + name + "] = (list)");
+  public void addCustomDictionary(final String name, final List values) throws JSONException {
+    logger.debug("Adding custom Dictionary [" + name + "] = (list)");
     put(name, values, payload, false);
+  }
+
+  /**
+   * Add a custom dictionnary with object
+   *
+   * @param name
+   * @param value
+   * @throws JSONException
+   */
+  public void addCustomDictionary(final String name, final Object value) throws JSONException {
+    logger.debug("Adding custom Dictionary [" + name + "] = [" + value + "]");
+    put(name, value, payload, false);
   }
 
   /**
    * Get the string representation
    */
   public String toString() {
-    return payload.toString();
+    return this.payload.toString();
   }
 
   void verifyPayloadIsNotEmpty() {
-    if (getPreSendConfiguration() != 0) return;
-    if (toString().equals("{}")) throw new IllegalArgumentException("Payload cannot be empty");
+    if (getPreSendConfiguration() != 0) {
+      return;
+    }
+    if (toString().equals("{}")) {
+      throw new IllegalArgumentException("Payload cannot be empty");
+    }
   }
 
   /**
@@ -117,7 +136,7 @@ public abstract class Payload {
    * @return byte[] bytes ready to be streamed directly to Apple servers
    */
   public byte[] getPayloadAsBytes() throws Exception {
-    byte[] payload = getPayloadAsBytesUnchecked();
+    final byte[] payload = getPayloadAsBytesUnchecked();
     validateMaximumPayloadSize(payload.length);
     return payload;
   }
@@ -129,10 +148,10 @@ public abstract class Payload {
    * @return byte[] bytes ready to be streamed directly to Apple servers (but that might exceed the maximum size limit)
    */
   private byte[] getPayloadAsBytesUnchecked() throws Exception {
-    byte[] bytes = null;
+    byte[] bytes;
     try {
       bytes = toString().getBytes(characterEncoding);
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       bytes = toString().getBytes();
     }
     return bytes;
@@ -156,9 +175,12 @@ public abstract class Payload {
    */
   private boolean isPayloadTooLong() {
     try {
-      byte[] bytes = getPayloadAsBytesUnchecked();
-      if (bytes.length > getMaximumPayloadSize()) return true;
-    } catch (Exception e) {
+      final byte[] bytes = getPayloadAsBytesUnchecked();
+      if (bytes.length > getMaximumPayloadSize()) {
+        return true;
+      }
+    } catch (final Exception e) {
+      // empty
     }
     return false;
   }
@@ -167,33 +189,32 @@ public abstract class Payload {
    * Estimate the size that this payload will take after adding a given property.
    * For performance reasons, this estimate is not as reliable as actually adding
    * the property and checking the payload size afterwards.
-   * <p/>
+   * <p>
    * Currently works well with strings and numbers.
    *
    * @param propertyName  the name of the property to use for calculating the estimation
    * @param propertyValue the value of the property to use for calculating the estimation
    * @return an estimated payload size if the property were to be added to the payload
    */
-  public int estimatePayloadSizeAfterAdding(String propertyName, Object propertyValue) {
+  private int estimatePayloadSizeAfterAdding(final String propertyName, final Object propertyValue) {
     try {
-      int maximumPayloadSize = getMaximumPayloadSize();
-      int currentPayloadSize = getPayloadAsBytesUnchecked().length;
-      int estimatedSize = currentPayloadSize;
+      int estimatedSize = getPayloadAsBytesUnchecked().length;
       if (propertyName != null && propertyValue != null) {
         estimatedSize += 6; // ,"":""
         estimatedSize += propertyName.getBytes(getCharacterEncoding()).length;
         int estimatedValueSize = 0;
 
-        if (propertyValue instanceof String || propertyValue instanceof Number)
+        if (propertyValue instanceof String || propertyValue instanceof Number) {
           estimatedValueSize = propertyValue.toString().getBytes(getCharacterEncoding()).length;
+        }
 
         estimatedSize += estimatedValueSize;
       }
       return estimatedSize;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       try {
         return getPayloadSize();
-      } catch (Exception e1) {
+      } catch (final Exception e1) {
         return 0;
       }
     }
@@ -208,11 +229,10 @@ public abstract class Payload {
    * @param propertyValue the value of the property to use for calculating the estimation
    * @return true if the payload size is not expected to exceed the maximum allowed, false if it might be too big
    */
-  public boolean isEstimatedPayloadSizeAllowedAfterAdding(String propertyName, Object propertyValue) {
-    int maximumPayloadSize = getMaximumPayloadSize();
-    int estimatedPayloadSize = estimatePayloadSizeAfterAdding(propertyName, propertyValue);
-    boolean estimatedToBeAllowed = estimatedPayloadSize <= maximumPayloadSize;
-    return estimatedToBeAllowed;
+  public boolean isEstimatedPayloadSizeAllowedAfterAdding(final String propertyName, final Object propertyValue) {
+    final int maximumPayloadSize = getMaximumPayloadSize();
+    final int estimatedPayloadSize = estimatePayloadSizeAfterAdding(propertyName, propertyValue);
+    return estimatedPayloadSize <= maximumPayloadSize;
   }
 
   /**
@@ -222,8 +242,8 @@ public abstract class Payload {
    * @param currentPayloadSize the total size of the payload in bytes
    * @throws PayloadMaxSizeExceededException if the payload exceeds the maximum size allowed
    */
-  private void validateMaximumPayloadSize(int currentPayloadSize) throws PayloadMaxSizeExceededException {
-    int maximumPayloadSize = getMaximumPayloadSize();
+  private void validateMaximumPayloadSize(final int currentPayloadSize) throws PayloadMaxSizeExceededException {
+    final int maximumPayloadSize = getMaximumPayloadSize();
     if (currentPayloadSize > maximumPayloadSize) {
       throw new PayloadMaxSizeExceededException(maximumPayloadSize, currentPayloadSize);
     }
@@ -238,21 +258,30 @@ public abstract class Payload {
    * @param opt           true to use putOpt, false to use put
    * @throws JSONException
    */
-  protected void put(String propertyName, Object propertyValue, JSONObject object, boolean opt) throws JSONException {
+  void put(final String propertyName, final Object propertyValue, final JSONObject object, final boolean opt) throws JSONException {
     try {
       if (isPayloadSizeEstimatedWhenAdding()) {
-        int maximumPayloadSize = getMaximumPayloadSize();
-        int estimatedPayloadSize = estimatePayloadSizeAfterAdding(propertyName, propertyValue);
-        boolean estimatedToExceed = estimatedPayloadSize > maximumPayloadSize;
-        if (estimatedToExceed) throw new PayloadMaxSizeProbablyExceededException(maximumPayloadSize, estimatedPayloadSize);
+        final int maximumPayloadSize = getMaximumPayloadSize();
+        final int estimatedPayloadSize = estimatePayloadSizeAfterAdding(propertyName, propertyValue);
+        final boolean estimatedToExceed = estimatedPayloadSize > maximumPayloadSize;
+        if (estimatedToExceed) {
+          throw new PayloadMaxSizeProbablyExceededException(maximumPayloadSize, estimatedPayloadSize);
+        }
       }
-    } catch (PayloadMaxSizeProbablyExceededException e) {
+    } catch (final PayloadMaxSizeProbablyExceededException e) {
       throw e;
-    } catch (Exception e) {
-
+    } catch (final Exception e) {
+      // empty
     }
-    if (opt) object.putOpt(propertyName, propertyValue);
-    else object.put(propertyName, propertyValue);
+    if (opt) {
+      object.putOpt(propertyName, propertyValue);
+    } else {
+      object.put(propertyName, propertyValue);
+    }
+  }
+
+  Object remove(final String propertyName, final JSONObject object) {
+    return object.remove(propertyName);
   }
 
   /**
@@ -269,8 +298,8 @@ public abstract class Payload {
    *
    * @param checked true to throw an exception if the estimated size is too big when adding a property, false otherwise
    */
-  public void setPayloadSizeEstimatedWhenAdding(boolean checked) {
-    payloadSizeEstimatedWhenAdding = checked;
+  public void setPayloadSizeEstimatedWhenAdding(final boolean checked) {
+    this.payloadSizeEstimatedWhenAdding = checked;
   }
 
   /**
@@ -280,7 +309,7 @@ public abstract class Payload {
    *
    * @return the maximum payload size in bytes
    */
-  public int getMaximumPayloadSize() {
+  int getMaximumPayloadSize() {
     return Integer.MAX_VALUE;
   }
 
@@ -301,7 +330,7 @@ public abstract class Payload {
    *
    * @param characterEncoding a valid character encoding that String.getBytes(encoding) will accept
    */
-  public void setCharacterEncoding(String characterEncoding) {
+  public void setCharacterEncoding(final String characterEncoding) {
     this.characterEncoding = characterEncoding;
   }
 
@@ -320,8 +349,8 @@ public abstract class Payload {
    *
    * @param seconds
    */
-  public void setExpiry(int seconds) {
-    expiry = seconds;
+  private void setExpiry(final int seconds) {
+    this.expiry = seconds;
   }
 
   /**
@@ -336,11 +365,11 @@ public abstract class Payload {
     return this;
   }
 
-  protected int getPreSendConfiguration() {
+  int getPreSendConfiguration() {
     return preSendConfiguration;
   }
 
-  protected void setPreSendConfiguration(int preSendConfiguration) {
+  void setPreSendConfiguration(final int preSendConfiguration) {
     this.preSendConfiguration = preSendConfiguration;
   }
 

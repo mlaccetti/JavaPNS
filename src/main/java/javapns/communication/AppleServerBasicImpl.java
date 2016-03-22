@@ -14,11 +14,9 @@ import java.io.InputStream;
 public abstract class AppleServerBasicImpl implements AppleServer {
   private final String password;
   private final String type;
-  private       Object keystore;
-
-  private       String proxyHost;
-  private       int    proxyPort;
-  private       String proxyAuthorization;
+  private Object keystore;
+  private String proxyHost;
+  private int proxyPort;
 
   /**
    * Constructs a AppleServerBasicImpl object.
@@ -28,7 +26,7 @@ public abstract class AppleServerBasicImpl implements AppleServer {
    * @param type     The keystore type (typically PKCS12)
    * @throws KeystoreException thrown if an error occurs when loading the keystore
    */
-  public AppleServerBasicImpl(Object keystore, String password, String type) throws KeystoreException {
+  protected AppleServerBasicImpl(final Object keystore, final String password, final String type) throws KeystoreException {
     KeystoreManager.validateKeystoreParameter(keystore);
     this.keystore = keystore;
     this.password = password;
@@ -58,16 +56,8 @@ public abstract class AppleServerBasicImpl implements AppleServer {
     return proxyPort;
   }
 
-  public void setProxy(String proxyHost, int proxyPort) {
+  public void setProxy(final String proxyHost, final int proxyPort) {
     this.proxyHost = proxyHost;
     this.proxyPort = proxyPort;
-  }
-
-  public String getProxyAuthorization() {
-    return proxyAuthorization;
-  }
-
-  public void setProxyAuthorization(String proxyAuthorization) {
-    this.proxyAuthorization = proxyAuthorization;
   }
 }

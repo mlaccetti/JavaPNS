@@ -15,7 +15,6 @@ import javapns.devices.exceptions.UnknownDeviceException;
  */
 @Deprecated
 public interface DeviceFactory {
-
   /**
    * Add a device to the map
    *

@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * This class implements an in-memory DeviceFactory (backed by a Map).
  * Since this class does not persist Device objects, it should not be used in a production environment.
- * <p/>
+ * <p>
  * NB : Future Improvement :
  * - Add a method to find a device knowing his token
  * - Add a method to update a device (timestamp or token)
@@ -25,17 +25,16 @@ import java.util.Map;
  */
 @Deprecated
 public class BasicDeviceFactory implements DeviceFactory {
-
   /* synclock */
   private static final Object synclock = new Object();
   /* A map containing all the devices, identified with their id */
-  private Map<String, BasicDevice> devices;
+  private final Map<String, BasicDevice> devices;
 
   /**
    * Constructs a VolatileDeviceFactory
    */
   public BasicDeviceFactory() {
-    devices = new HashMap<String, BasicDevice>();
+    this.devices = new HashMap<>();
   }
 
   /**
@@ -47,16 +46,16 @@ public class BasicDeviceFactory implements DeviceFactory {
    * @throws NullIdException
    * @throws NullDeviceTokenException
    */
-  public Device addDevice(String id, String token) throws Exception {
-    if (id == null || id.trim().equals("")) {
+  public Device addDevice(final String id, String token) throws Exception {
+    if ((id == null) || (id.trim().equals(""))) {
       throw new NullIdException();
-    } else if (token == null || token.trim().equals("")) {
+    } else if ((token == null) || (token.trim().equals(""))) {
       throw new NullDeviceTokenException();
     } else {
-      if (!devices.containsKey(id)) {
+      if (!this.devices.containsKey(id)) {
         token = token.trim().replace(" ", "");
-        BasicDevice device = new BasicDevice(id, token, new Timestamp(Calendar.getInstance().getTime().getTime()));
-        devices.put(id, device);
+        final BasicDevice device = new BasicDevice(id, token, new Timestamp(Calendar.getInstance().getTime().getTime()));
+        this.devices.put(id, device);
         return device;
       } else {
         throw new DuplicateDeviceException();
@@ -72,12 +71,12 @@ public class BasicDeviceFactory implements DeviceFactory {
    * @throws UnknownDeviceException
    * @throws NullIdException
    */
-  public Device getDevice(String id) throws UnknownDeviceException, NullIdException {
-    if (id == null || id.trim().equals("")) {
+  public Device getDevice(final String id) throws UnknownDeviceException, NullIdException {
+    if ((id == null) || (id.trim().equals(""))) {
       throw new NullIdException();
     } else {
-      if (devices.containsKey(id)) {
-        return devices.get(id);
+      if (this.devices.containsKey(id)) {
+        return this.devices.get(id);
       } else {
         throw new UnknownDeviceException();
       }
@@ -91,12 +90,12 @@ public class BasicDeviceFactory implements DeviceFactory {
    * @throws UnknownDeviceException
    * @throws NullIdException
    */
-  public void removeDevice(String id) throws UnknownDeviceException, NullIdException {
-    if (id == null || id.trim().equals("")) {
+  public void removeDevice(final String id) throws UnknownDeviceException, NullIdException {
+    if ((id == null) || (id.trim().equals(""))) {
       throw new NullIdException();
     }
-    if (devices.containsKey(id)) {
-      devices.remove(id);
+    if (this.devices.containsKey(id)) {
+      this.devices.remove(id);
     } else {
       throw new UnknownDeviceException();
     }

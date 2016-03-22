@@ -11,9 +11,8 @@ import javapns.communication.exceptions.KeystoreException;
  * @author Sylvain Pedneault
  */
 public class AppleFeedbackServerBasicImpl extends AppleServerBasicImpl implements AppleFeedbackServer {
-
-  private String host;
-  private int    port;
+  private final String host;
+  private final int port;
 
   /**
    * Communication settings for interacting with Apple's default production or sandbox feedback server.
@@ -24,8 +23,8 @@ public class AppleFeedbackServerBasicImpl extends AppleServerBasicImpl implement
    * @param production true to use Apple's production servers, false to use the sandbox
    * @throws KeystoreException thrown if an error occurs when loading the keystore
    */
-  public AppleFeedbackServerBasicImpl(Object keystore, String password, boolean production) throws KeystoreException {
-    this(keystore, password, ConnectionToAppleServer.getKeystoreType(), production);
+  public AppleFeedbackServerBasicImpl(final Object keystore, final String password, final boolean production) throws KeystoreException {
+    this(keystore, password, ConnectionToAppleServer.KEYSTORE_TYPE_PKCS12, production);
   }
 
   /**
@@ -37,8 +36,8 @@ public class AppleFeedbackServerBasicImpl extends AppleServerBasicImpl implement
    * @param production true to use Apple's production servers, false to use the sandbox
    * @throws KeystoreException thrown if an error occurs when loading the keystore
    */
-  public AppleFeedbackServerBasicImpl(Object keystore, String password, String type, boolean production) throws KeystoreException {
-    this(keystore, password, type, production ? AppleFeedbackServer.PRODUCTION_HOST : AppleFeedbackServer.DEVELOPMENT_HOST, production ? AppleFeedbackServer.PRODUCTION_PORT : AppleFeedbackServer.DEVELOPMENT_PORT);
+  private AppleFeedbackServerBasicImpl(final Object keystore, final String password, final String type, final boolean production) throws KeystoreException {
+    this(keystore, password, type, production ? PRODUCTION_HOST : DEVELOPMENT_HOST, production ? PRODUCTION_PORT : DEVELOPMENT_PORT);
   }
 
   /**
@@ -51,7 +50,7 @@ public class AppleFeedbackServerBasicImpl extends AppleServerBasicImpl implement
    * @param port     A specific APNS port
    * @throws KeystoreException thrown if an error occurs when loading the keystore
    */
-  public AppleFeedbackServerBasicImpl(Object keystore, String password, String type, String host, int port) throws KeystoreException {
+  private AppleFeedbackServerBasicImpl(final Object keystore, final String password, final String type, final String host, final int port) throws KeystoreException {
     super(keystore, password, type);
     this.host = host;
     this.port = port;
@@ -64,5 +63,4 @@ public class AppleFeedbackServerBasicImpl extends AppleServerBasicImpl implement
   public int getFeedbackServerPort() {
     return port;
   }
-
 }

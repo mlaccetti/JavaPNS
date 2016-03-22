@@ -1,7 +1,7 @@
 package javapns.notification.management;
 
-import javapns.json.JSONException;
-import javapns.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -10,28 +10,28 @@ import java.util.Map;
  *
  * @author Sylvain Pedneault
  */
-public class APNPayload extends MobileConfigPayload {
-
-  public APNPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName, Map<String, String> defaultsData, String defaultsDomainName, Map<String, String>[] apns, String apn, String username) throws JSONException {
+class APNPayload extends MobileConfigPayload {
+  public APNPayload(final int payloadVersion, final String payloadOrganization, final String payloadIdentifier, final String payloadDisplayName, final Map<String, String> defaultsData, final String defaultsDomainName, final Map<String, String>[] apns, final String apn, final String username) throws JSONException {
     super(payloadVersion, "com.apple.apn.managed", payloadOrganization, payloadIdentifier, payloadDisplayName);
-    JSONObject payload = getPayload();
+    final JSONObject payload = getPayload();
     payload.put("DefaultsData", defaultsData);
     payload.put("defaultsDomainName", defaultsDomainName);
-    for (Map<String, String> apnsEntry : apns)
+    for (final Map<String, String> apnsEntry : apns) {
       payload.put("apns", apnsEntry);
+    }
     payload.put("apn", apn);
     payload.put("username", username);
   }
 
-  public void setPassword(APNPayload value) throws JSONException {
+  public void setPassword(final APNPayload value) throws JSONException {
     getPayload().put("password", value);
   }
 
-  public void setProxy(String value) throws JSONException {
+  public void setProxy(final String value) throws JSONException {
     getPayload().put("proxy", value);
   }
 
-  public void setProxyPort(int value) throws JSONException {
+  public void setProxyPort(final int value) throws JSONException {
     getPayload().put("proxyPort", value);
   }
 

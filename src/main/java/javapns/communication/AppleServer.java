@@ -11,6 +11,7 @@ import java.io.InputStream;
  * @author Sylvain Pedneault
  */
 public interface AppleServer {
+
   /**
    * Returns a stream to a keystore.
    *
@@ -58,21 +59,4 @@ public interface AppleServer {
    * @param proxyPort proxy host port
    */
   void setProxy(String proxyHost, int proxyPort);
-
-  /**
-   * Get the proxy authorization (if any) currently configured for this specific server.
-   * A proxy might still be configured at the library or JVM levels.
-   * Refer to {@link javapns.communication.ProxyManager} for more information.
-   *
-   * @return a proxy authorization, or null if none is configured
-   */
-  String getProxyAuthorization();
-
-  /**
-   * Configure the proxy authorization to use for this specific server.
-   * Use {@link javapns.communication.ProxyManager} to configure a proxy for the entire library instead.
-   *
-   * @param proxyAuthorization encoded proxy authorization
-   */
-  void setProxyAuthorization(String proxyAuthorization);
 }

@@ -6,17 +6,15 @@ import java.util.Vector;
 
 /**
  * <p>A list of PushedNotification objects.</p>
- * <p/>
+ * <p>
  * <p>This list can be configured to retain a maximum number of objects.  When that maximum is reached, older objects are removed from the list before new ones are added.</p>
- * <p/>
+ * <p>
  * <p>Internally, this list extends Vector.</p>
  *
  * @author Sylvain Pedneault
  */
-public class PushedNotifications extends Vector<PushedNotification> {
-
-  private static final long serialVersionUID = 1L;
-
+public class PushedNotifications extends Vector<PushedNotification> implements List<PushedNotification> {
+  private static final long serialVersionUID = 1418782231076330494L;
   private int maxRetained = 1000;
 
   /**
@@ -30,7 +28,7 @@ public class PushedNotifications extends Vector<PushedNotification> {
    *
    * @param capacity
    */
-  public PushedNotifications(int capacity) {
+  public PushedNotifications(final int capacity) {
     super(capacity);
   }
 
@@ -39,8 +37,8 @@ public class PushedNotifications extends Vector<PushedNotification> {
    *
    * @param parent
    */
-  public PushedNotifications(PushedNotifications parent) {
-    maxRetained = parent.getMaxRetained();
+  private PushedNotifications(final PushedNotifications parent) {
+    this.maxRetained = parent.getMaxRetained();
   }
 
   /**
@@ -49,9 +47,11 @@ public class PushedNotifications extends Vector<PushedNotification> {
    * @return a filtered list containing only notifications that were succcessful
    */
   public PushedNotifications getSuccessfulNotifications() {
-    PushedNotifications filteredList = new PushedNotifications(this);
-    for (PushedNotification notification : this) {
-      if (notification.isSuccessful()) filteredList.add(notification);
+    final PushedNotifications filteredList = new PushedNotifications(this);
+    for (final PushedNotification notification : this) {
+      if (notification.isSuccessful()) {
+        filteredList.add(notification);
+      }
     }
     return filteredList;
   }
@@ -62,8 +62,8 @@ public class PushedNotifications extends Vector<PushedNotification> {
    * @return a filtered list containing only notifications that were <b>not</b> successful
    */
   public PushedNotifications getFailedNotifications() {
-    PushedNotifications filteredList = new PushedNotifications(this);
-    for (PushedNotification notification : this) {
+    final PushedNotifications filteredList = new PushedNotifications(this);
+    for (final PushedNotification notification : this) {
       if (!notification.isSuccessful()) {
         filteredList.add(notification);
       }
@@ -72,28 +72,29 @@ public class PushedNotifications extends Vector<PushedNotification> {
   }
 
   @Override
-  public synchronized boolean add(PushedNotification notification) {
+  public synchronized boolean add(final PushedNotification notification) {
     prepareAdd(1);
     return super.add(notification);
   }
 
   @Override
-  public synchronized void addElement(PushedNotification notification) {
+  public synchronized void addElement(final PushedNotification notification) {
     prepareAdd(1);
     super.addElement(notification);
   }
 
   @Override
-  public synchronized boolean addAll(Collection<? extends PushedNotification> notifications) {
+  public synchronized boolean addAll(final Collection<? extends PushedNotification> notifications) {
     prepareAdd(notifications.size());
     return super.addAll(notifications);
   }
 
-  private void prepareAdd(int n) {
-    int size = size();
+  private void prepareAdd(final int n) {
+    final int size = size();
     if (size + n > maxRetained) {
-      for (int i = 0; i < n && size() > 0; i++)
+      for (int i = 0; i < n; i++) {
         remove(0);
+      }
     }
   }
 
@@ -102,7 +103,7 @@ public class PushedNotifications extends Vector<PushedNotification> {
    *
    * @return the maximum number of objects that this list retains
    */
-  public int getMaxRetained() {
+  private int getMaxRetained() {
     return maxRetained;
   }
 
@@ -112,8 +113,7 @@ public class PushedNotifications extends Vector<PushedNotification> {
    *
    * @param maxRetained the maxRetained value currently configured (default is 1000)
    */
-  public void setMaxRetained(int maxRetained) {
+  public void setMaxRetained(final int maxRetained) {
     this.maxRetained = maxRetained;
   }
-
 }

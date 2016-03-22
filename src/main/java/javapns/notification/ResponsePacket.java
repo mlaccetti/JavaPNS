@@ -6,28 +6,29 @@ package javapns.notification;
  * @author Sylvain Pedneault
  */
 public class ResponsePacket {
-
   private int command;
   private int status;
   private int identifier;
 
   protected ResponsePacket() {
+    // empty
   }
 
-  protected ResponsePacket(int command, int status, int identifier) {
+  ResponsePacket(final int command, final int status, final int identifier) {
     this.command = command;
     this.status = status;
     this.identifier = identifier;
   }
 
-  protected void linkToPushedNotification(PushNotificationManager notificationManager) {
-    PushedNotification notification = null;
+  void linkToPushedNotification(final PushNotificationManager notificationManager) {
+    final PushedNotification notification;
     try {
       notification = notificationManager.getPushedNotifications().get(identifier);
       if (notification != null) {
         notification.setResponse(this);
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
+      // empty
     }
   }
 
@@ -40,7 +41,7 @@ public class ResponsePacket {
     return command;
   }
 
-  protected void setCommand(int command) {
+  protected void setCommand(final int command) {
     this.command = command;
   }
 
@@ -49,7 +50,7 @@ public class ResponsePacket {
    *
    * @return true if command number is 8, false otherwise
    */
-  public boolean isErrorResponsePacket() {
+  private boolean isErrorResponsePacket() {
     return command == 8;
   }
 
@@ -62,7 +63,7 @@ public class ResponsePacket {
     return status;
   }
 
-  protected void setStatus(int status) {
+  protected void setStatus(final int status) {
     this.status = status;
   }
 
@@ -73,8 +74,7 @@ public class ResponsePacket {
    * @return true if command number is 8 and status code is not 0, false otherwise
    */
   public boolean isValidErrorMessage() {
-    if (!isErrorResponsePacket()) return false;
-    return status != 0;
+    return isErrorResponsePacket() && status != 0;
   }
 
   /**
@@ -86,7 +86,7 @@ public class ResponsePacket {
     return identifier;
   }
 
-  protected void setIdentifier(int identifier) {
+  protected void setIdentifier(final int identifier) {
     this.identifier = identifier;
   }
 
@@ -97,20 +97,39 @@ public class ResponsePacket {
    */
   public String getMessage() {
     if (command == 8) {
-      String prefix = "APNS: [" + identifier + "] "; //APNS ERROR FOR MESSAGE ID #" + identifier + ": ";
-      if (status == 0) return prefix + "No errors encountered";
-      if (status == 1) return prefix + "Processing error";
-      if (status == 2) return prefix + "Missing device token";
-      if (status == 3) return prefix + "Missing topic";
-      if (status == 4) return prefix + "Missing payload";
-      if (status == 5) return prefix + "Invalid token size";
-      if (status == 6) return prefix + "Invalid topic size";
-      if (status == 7) return prefix + "Invalid payload size";
-      if (status == 8) return prefix + "Invalid token";
-      if (status == 255) return prefix + "None (unknown)";
+      final String prefix = "APNS: [" + identifier + "] "; //APNS ERROR FOR MESSAGE ID #" + identifier + ": ";
+      if (status == 0) {
+        return prefix + "No errors encountered";
+      }
+      if (status == 1) {
+        return prefix + "Processing error";
+      }
+      if (status == 2) {
+        return prefix + "Missing device token";
+      }
+      if (status == 3) {
+        return prefix + "Missing topic";
+      }
+      if (status == 4) {
+        return prefix + "Missing payload";
+      }
+      if (status == 5) {
+        return prefix + "Invalid token size";
+      }
+      if (status == 6) {
+        return prefix + "Invalid topic size";
+      }
+      if (status == 7) {
+        return prefix + "Invalid payload size";
+      }
+      if (status == 8) {
+        return prefix + "Invalid token";
+      }
+      if (status == 255) {
+        return prefix + "None (unknown)";
+      }
       return prefix + "Undocumented status code: " + status;
     }
     return "APNS: Undocumented response command: " + command;
   }
-
 }

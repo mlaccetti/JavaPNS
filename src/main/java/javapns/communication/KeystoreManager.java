@@ -5,12 +5,7 @@ import javapns.communication.exceptions.InvalidKeystorePasswordException;
 import javapns.communication.exceptions.InvalidKeystoreReferenceException;
 import javapns.communication.exceptions.KeystoreException;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateExpiredException;
@@ -24,7 +19,6 @@ import java.util.Enumeration;
  * @author Sylvain Pedneault
  */
 public class KeystoreManager {
-
   private static final String REVIEW_MESSAGE = " Please review the procedure for generating a keystore for JavaPNS.";
 
   /**
@@ -34,8 +28,8 @@ public class KeystoreManager {
    * @return A loaded keystore
    * @throws KeystoreException
    */
-  static KeyStore loadKeystore(AppleServer server) throws KeystoreException {
-    return KeystoreManager.loadKeystore(server, server.getKeystoreStream());
+  static KeyStore loadKeystore(final AppleServer server) throws KeystoreException {
+    return loadKeystore(server, server.getKeystoreStream());
   }
 
   /**
@@ -46,8 +40,8 @@ public class KeystoreManager {
    * @return a loaded keystore
    * @throws KeystoreException
    */
-  static KeyStore loadKeystore(AppleServer server, Object keystore) throws KeystoreException {
-    return KeystoreManager.loadKeystore(server, keystore, false);
+  private static KeyStore loadKeystore(final AppleServer server, final Object keystore) throws KeystoreException {
+    return loadKeystore(server, keystore, false);
   }
 
   /**
@@ -59,25 +53,22 @@ public class KeystoreManager {
    * @return a loaded keystore
    * @throws KeystoreException
    */
-  public static KeyStore loadKeystore(AppleServer server, Object keystore, boolean verifyKeystore) throws KeystoreException {
-    if (keystore instanceof KeyStore) return (KeyStore) keystore;
-    synchronized (server) {
-      InputStream keystoreStream = KeystoreManager.streamKeystore(keystore);
-      if (keystoreStream instanceof WrappedKeystore) return ((WrappedKeystore) keystoreStream).getKeystore();
-      KeyStore keyStore;
-      try {
-        keyStore = KeyStore.getInstance(server.getKeystoreType());
-        char[] password = getKeystorePasswordForSSL(server);
-        keyStore.load(keystoreStream, password);
-      } catch (Exception e) {
-        throw KeystoreManager.wrapKeystoreException(e);
-      } finally {
-        try {
-          keystoreStream.close();
-        } catch (Exception e) {
-        }
+  private static synchronized KeyStore loadKeystore(final AppleServer server, final Object keystore, final boolean verifyKeystore) throws KeystoreException {
+    if (keystore instanceof KeyStore) {
+      return (KeyStore) keystore;
+    }
+
+    try (final InputStream keystoreStream = streamKeystore(keystore)) {
+      if (keystoreStream instanceof WrappedKeystore) {
+        return ((WrappedKeystore) keystoreStream).getKeystore();
       }
+
+      final KeyStore keyStore = KeyStore.getInstance(server.getKeystoreType());
+      final char[] password = KeystoreManager.getKeystorePasswordForSSL(server);
+      keyStore.load(keystoreStream, password);
       return keyStore;
+    } catch (final Exception e) {
+      throw wrapKeystoreException(e);
     }
   }
 
@@ -89,8 +80,10 @@ public class KeystoreManager {
    * @return a reusable keystore
    * @throws KeystoreException
    */
-  static Object ensureReusableKeystore(AppleServer server, Object keystore) throws KeystoreException {
-    if (keystore instanceof InputStream) keystore = KeystoreManager.loadKeystore(server, keystore, false);
+  static Object ensureReusableKeystore(final AppleServer server, Object keystore) throws KeystoreException {
+    if (keystore instanceof InputStream) {
+      keystore = loadKeystore(server, keystore, false);
+    }
     return keystore;
   }
 
@@ -103,11 +96,14 @@ public class KeystoreManager {
    * @param keystore a keystore containing your private key and the certificate signed by Apple (File, InputStream, byte[], KeyStore or String for a file path)
    * @throws KeystoreException
    */
-  public static void verifyKeystoreContent(AppleServer server, Object keystore) throws KeystoreException {
-    KeyStore keystoreToValidate = null;
-    if (keystore instanceof KeyStore) keystoreToValidate = (KeyStore) keystore;
-    else keystoreToValidate = KeystoreManager.loadKeystore(server, keystore);
-    KeystoreManager.verifyKeystoreContent(keystoreToValidate);
+  public static void verifyKeystoreContent(final AppleServer server, final Object keystore) throws KeystoreException {
+    final KeyStore keystoreToValidate;
+    if (keystore instanceof KeyStore) {
+      keystoreToValidate = (KeyStore) keystore;
+    } else {
+      keystoreToValidate = loadKeystore(server, keystore);
+    }
+    verifyKeystoreContent(keystoreToValidate);
   }
 
   /**
@@ -118,55 +114,64 @@ public class KeystoreManager {
    * @param keystore a keystore to verify
    * @throws KeystoreException thrown if a problem was detected
    */
-  public static void verifyKeystoreContent(KeyStore keystore) throws KeystoreException {
+  private static void verifyKeystoreContent(final KeyStore keystore) throws KeystoreException {
     try {
       int numberOfCertificates = 0;
-      Enumeration<String> aliases = keystore.aliases();
+      final Enumeration<String> aliases = keystore.aliases();
       while (aliases.hasMoreElements()) {
-        String alias = aliases.nextElement();
-        Certificate certificate = keystore.getCertificate(alias);
+        final String alias = aliases.nextElement();
+        final Certificate certificate = keystore.getCertificate(alias);
         if (certificate instanceof X509Certificate) {
-          X509Certificate xcert = (X509Certificate) certificate;
+          final X509Certificate xcert = (X509Certificate) certificate;
           numberOfCertificates++;
 
-					/* Check validity dates */
+          /* Check validity dates */
           xcert.checkValidity();
 
-					/* Check issuer */
-          boolean issuerIsApple = xcert.getIssuerDN().toString().contains("Apple");
-          if (!issuerIsApple) throw new KeystoreException("Certificate was not issued by Apple." + KeystoreManager.REVIEW_MESSAGE);
+          /* Check issuer */
+          final boolean issuerIsApple = xcert.getIssuerDN().toString().contains("Apple");
+          if (!issuerIsApple) {
+            throw new KeystoreException("Certificate was not issued by Apple." + REVIEW_MESSAGE);
+          }
 
-					/* Check certificate key usage */
-          boolean[] keyUsage = xcert.getKeyUsage();
-          if (!keyUsage[0]) throw new KeystoreException("Certificate usage is incorrect." + KeystoreManager.REVIEW_MESSAGE);
+          /* Check certificate key usage */
+          final boolean[] keyUsage = xcert.getKeyUsage();
+          if (!keyUsage[0]) {
+            throw new KeystoreException("Certificate usage is incorrect." + REVIEW_MESSAGE);
+          }
 
         }
       }
-      if (numberOfCertificates == 0) throw new KeystoreException("Keystore does not contain any valid certificate." + KeystoreManager.REVIEW_MESSAGE);
-      if (numberOfCertificates > 1) throw new KeystoreException("Keystore contains too many certificates." + KeystoreManager.REVIEW_MESSAGE);
+      if (numberOfCertificates == 0) {
+        throw new KeystoreException("Keystore does not contain any valid certificate." + REVIEW_MESSAGE);
+      }
+      if (numberOfCertificates > 1) {
+        throw new KeystoreException("Keystore contains too many certificates." + REVIEW_MESSAGE);
+      }
 
-    } catch (KeystoreException e) {
+    } catch (final KeystoreException e) {
       throw e;
-    } catch (CertificateExpiredException e) {
+    } catch (final CertificateExpiredException e) {
       throw new KeystoreException("Certificate is expired. A new one must be issued.", e);
-    } catch (CertificateNotYetValidException e) {
+    } catch (final CertificateNotYetValidException e) {
       throw new KeystoreException("Certificate is not yet valid. Wait until the validity period is reached or issue a new certificate.", e);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       /* We ignore any other exception, as we do not want to interrupt the process because of an error we did not expect. */
     }
   }
 
-  static char[] getKeystorePasswordForSSL(AppleServer server) {
+  static char[] getKeystorePasswordForSSL(final AppleServer server) {
     String password = server.getKeystorePassword();
-    if (password == null) password = "";
-    //		if (password != null && password.length() == 0) password = null;
-    char[] passchars = password != null ? password.toCharArray() : null;
-    return passchars;
+    if (password == null) {
+      password = "";
+    }
+
+    return password.toCharArray();
   }
 
-  static KeystoreException wrapKeystoreException(Exception e) {
+  static KeystoreException wrapKeystoreException(final Exception e) {
     if (e != null) {
-      String msg = e.toString();
+      final String msg = e.toString();
       if (msg.contains("javax.crypto.BadPaddingException")) {
         return new InvalidKeystorePasswordException();
       }
@@ -177,7 +182,8 @@ public class KeystoreManager {
         return new InvalidKeystorePasswordException("Blank passwords not supported (#38).  You must create your keystore with a non-empty password.");
       }
     }
-    return new KeystoreException("Keystore exception: " + e.getMessage(), e);
+
+    return new KeystoreException("Keystore exception: " + (e != null ? e.getMessage() : null), e);
   }
 
   /**
@@ -187,18 +193,25 @@ public class KeystoreManager {
    *
    * @param keystore a keystore containing your private key and the certificate signed by Apple (File, InputStream, byte[], KeyStore or String for a file path)
    * @return A stream to the keystore.
-   * @throws FileNotFoundException
+   * @throws InvalidKeystoreReferenceException
    */
-  static InputStream streamKeystore(Object keystore) throws InvalidKeystoreReferenceException {
-    KeystoreManager.validateKeystoreParameter(keystore);
+  static InputStream streamKeystore(final Object keystore) throws InvalidKeystoreReferenceException {
+    validateKeystoreParameter(keystore);
     try {
-      if (keystore instanceof InputStream) return (InputStream) keystore;
-      else if (keystore instanceof KeyStore) return new WrappedKeystore((KeyStore) keystore);
-      else if (keystore instanceof File) return new BufferedInputStream(new FileInputStream((File) keystore));
-      else if (keystore instanceof String) return new BufferedInputStream(new FileInputStream((String) keystore));
-      else if (keystore instanceof byte[]) return new ByteArrayInputStream((byte[]) keystore);
-      else return null; // we should not get here since validateKeystore ensures that the reference is valid
-    } catch (Exception e) {
+      if (keystore instanceof InputStream) {
+        return (InputStream) keystore;
+      } else if (keystore instanceof KeyStore) {
+        return new WrappedKeystore((KeyStore) keystore);
+      } else if (keystore instanceof File) {
+        return new BufferedInputStream(new FileInputStream((File) keystore));
+      } else if (keystore instanceof String) {
+        return new BufferedInputStream(new FileInputStream((String) keystore));
+      } else if (keystore instanceof byte[]) {
+        return new ByteArrayInputStream((byte[]) keystore);
+      } else {
+        return null; // we should not get here since validateKeystore ensures that the reference is valid
+      }
+    } catch (final Exception e) {
       throw new InvalidKeystoreReferenceException("Invalid keystore reference: " + e.getMessage());
     }
   }
@@ -210,21 +223,36 @@ public class KeystoreManager {
    * @throws InvalidKeystoreReferenceException thrown if the provided keystore parameter is not supported
    */
   public static void validateKeystoreParameter(Object keystore) throws InvalidKeystoreReferenceException {
-    if (keystore == null) throw new InvalidKeystoreReferenceException((Object) null);
-    if (keystore instanceof KeyStore) return;
-    if (keystore instanceof InputStream) return;
-    if (keystore instanceof String) keystore = new File((String) keystore);
+    if (keystore == null) {
+      throw new InvalidKeystoreReferenceException((Object) null);
+    }
+    if (keystore instanceof KeyStore) {
+      return;
+    }
+    if (keystore instanceof InputStream) {
+      return;
+    }
+    if (keystore instanceof String) {
+      keystore = new File((String) keystore);
+    }
     if (keystore instanceof File) {
-      File file = (File) keystore;
-      if (!file.exists()) throw new InvalidKeystoreReferenceException("Invalid keystore reference.  File does not exist: " + file.getAbsolutePath());
-      if (!file.isFile())
+      final File file = (File) keystore;
+      if (!file.exists()) {
+        throw new InvalidKeystoreReferenceException("Invalid keystore reference.  File does not exist: " + file.getAbsolutePath());
+      }
+      if (!file.isFile()) {
         throw new InvalidKeystoreReferenceException("Invalid keystore reference.  Path does not refer to a valid file: " + file.getAbsolutePath());
-      if (file.length() <= 0) throw new InvalidKeystoreReferenceException("Invalid keystore reference.  File is empty: " + file.getAbsolutePath());
+      }
+      if (file.length() <= 0) {
+        throw new InvalidKeystoreReferenceException("Invalid keystore reference.  File is empty: " + file.getAbsolutePath());
+      }
       return;
     }
     if (keystore instanceof byte[]) {
-      byte[] bytes = (byte[]) keystore;
-      if (bytes.length == 0) throw new InvalidKeystoreReferenceException("Invalid keystore reference. Byte array is empty");
+      final byte[] bytes = (byte[]) keystore;
+      if (bytes.length == 0) {
+        throw new InvalidKeystoreReferenceException("Invalid keystore reference. Byte array is empty");
+      }
       return;
     }
     throw new InvalidKeystoreReferenceException(keystore);
