@@ -2,36 +2,36 @@ package javapns.notification.exceptions;
 
 /**
  * Thrown when a payload exceeds the maximum size allowed.
- * @author Sylvain Pedneault
  *
+ * @author Sylvain Pedneault
  */
-@SuppressWarnings("serial")
+
 public class PayloadMaxSizeExceededException extends Exception {
 
-	/**
-	 * Default constructor
-	 */
-	public PayloadMaxSizeExceededException() {
-		super("Total payload size exceeds allowed limit");
-	}
+  private static final long serialVersionUID = 2896151447959250527L;
 
+  /**
+   * Default constructor
+   */
+  public PayloadMaxSizeExceededException() {
+    super("Total payload size exceeds allowed limit");
+  }
 
-	public PayloadMaxSizeExceededException(int maxSize) {
-		super(String.format("Total payload size exceeds allowed limit (%s bytes max)", maxSize));
-	}
+  public PayloadMaxSizeExceededException(final int maxSize) {
+    super(String.format("Total payload size exceeds allowed limit (%s bytes max)", maxSize));
+  }
 
+  public PayloadMaxSizeExceededException(final int maxSize, final int currentSize) {
+    super(String.format("Total payload size exceeds allowed limit (payload is %s bytes, limit is %s)", currentSize, maxSize));
+  }
 
-	public PayloadMaxSizeExceededException(int maxSize, int currentSize) {
-		super(String.format("Total payload size exceeds allowed limit (payload is %s bytes, limit is %s)", currentSize, maxSize));
-	}
-
-
-	/**
-	 * Constructor with custom message
-	 * @param message
-	 */
-	public PayloadMaxSizeExceededException(String message) {
-		super(message);
-	}
+  /**
+   * Constructor with custom message
+   *
+   * @param message
+   */
+  public PayloadMaxSizeExceededException(final String message) {
+    super(message);
+  }
 
 }

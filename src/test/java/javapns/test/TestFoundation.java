@@ -1,27 +1,29 @@
-package test;
+package javapns.test;
 
 import javapns.communication.KeystoreManager;
 import javapns.notification.AppleNotificationServer;
 import javapns.notification.AppleNotificationServerBasicImpl;
 
 class TestFoundation {
-  static boolean verifyCorrectUsage(Class testClass, String[] argsProvided, String... argsRequired) {
-    if (argsProvided == null) return true;
-    int numberOfArgsRequired = TestFoundation.countArgumentsRequired(argsRequired);
+  static boolean verifyCorrectUsage(final Class testClass, final String[] argsProvided, final String... argsRequired) {
+    if (argsProvided == null) {
+      return true;
+    }
+    final int numberOfArgsRequired = countArgumentsRequired(argsRequired);
     if (argsProvided.length < numberOfArgsRequired) {
-      String message = TestFoundation.getUsageMessage(testClass, argsRequired);
+      final String message = getUsageMessage(testClass, argsRequired);
       System.out.println(message);
       return false;
     }
     return true;
   }
 
-  private static String getUsageMessage(Class testClass, String... argsRequired) {
-    StringBuilder message = new StringBuilder("Usage: ");
+  private static String getUsageMessage(final Class testClass, final String... argsRequired) {
+    final StringBuilder message = new StringBuilder("Usage: ");
     message.append("java -cp \"<required libraries>\" ");
     message.append(testClass.getName());
-    for (String argRequired : argsRequired) {
-      boolean optional = argRequired.startsWith("[");
+    for (final String argRequired : argsRequired) {
+      final boolean optional = argRequired.startsWith("[");
       if (optional) {
         message.append(" [");
         message.append(argRequired.substring(1, argRequired.length() - 1));
@@ -35,10 +37,12 @@ class TestFoundation {
     return message.toString();
   }
 
-  private static int countArgumentsRequired(String... argsRequired) {
+  private static int countArgumentsRequired(final String... argsRequired) {
     int numberOfArgsRequired = 0;
-    for (String argRequired : argsRequired) {
-      if (argRequired.startsWith("[")) break;
+    for (final String argRequired : argsRequired) {
+      if (argRequired.startsWith("[")) {
+        break;
+      }
       numberOfArgsRequired++;
     }
     return numberOfArgsRequired;
@@ -51,24 +55,23 @@ class TestFoundation {
    * @param password          password for the keystore
    * @param production        service to use
    */
-  public static void verifyKeystore(Object keystoreReference, String password, boolean production) {
+  static void verifyKeystore(final Object keystoreReference, final String password, final boolean production) {
     try {
       System.out.print("Validating keystore reference: ");
       KeystoreManager.validateKeystoreParameter(keystoreReference);
       System.out.println("VALID  (keystore was found)");
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
     }
     if (password != null) {
       try {
         System.out.print("Verifying keystore content: ");
-        AppleNotificationServer server = new AppleNotificationServerBasicImpl(keystoreReference, password, production);
+        final AppleNotificationServer server = new AppleNotificationServerBasicImpl(keystoreReference, password, production);
         KeystoreManager.verifyKeystoreContent(server, keystoreReference);
         System.out.println("VERIFIED  (no common mistakes detected)");
-      } catch (Exception e) {
+      } catch (final Exception e) {
         e.printStackTrace();
       }
     }
   }
-
 }

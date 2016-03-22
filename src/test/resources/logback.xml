@@ -10,9 +10,9 @@
     </encoder>
   </appender>
   <logger name="javapns" additivity="false" level="DEBUG">
-    <appender-ref ref="stdout" />
+    <appender-ref ref="stdout"/>
   </logger>
   <root level="WARN">
-    <appender-ref ref="stdout" />
+    <appender-ref ref="stdout"/>
   </root>
 </configuration>

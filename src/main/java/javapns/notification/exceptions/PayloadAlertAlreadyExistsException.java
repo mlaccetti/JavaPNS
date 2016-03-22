@@ -1,29 +1,31 @@
 package javapns.notification.exceptions;
 
-import org.json.*;
+import org.json.JSONException;
 
 /**
  * Thrown when a payload exceeds the maximum size allowed.
- * @author Sylvain Pedneault
  *
+ * @author Sylvain Pedneault
  */
-@SuppressWarnings("serial")
+
 public class PayloadAlertAlreadyExistsException extends JSONException {
 
-	/**
-	 * Default constructor
-	 */
-	public PayloadAlertAlreadyExistsException() {
-		super("Payload alert already exists");
-	}
+  private static final long serialVersionUID = -4514511954076864373L;
 
+  /**
+   * Default constructor
+   */
+  public PayloadAlertAlreadyExistsException() {
+    super("Payload alert already exists");
+  }
 
-	/**
-	 * Constructor with custom message
-	 * @param message
-	 */
-	public PayloadAlertAlreadyExistsException(String message) {
-		super(message);
-	}
+  /**
+   * Constructor with custom message
+   *
+   * @param message
+   */
+  public PayloadAlertAlreadyExistsException(final String message) {
+    super(message);
+  }
 
 }

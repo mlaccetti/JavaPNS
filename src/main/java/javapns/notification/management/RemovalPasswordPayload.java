@@ -1,21 +1,18 @@
 package javapns.notification.management;
 
-import org.json.*;
+import org.json.JSONException;
 
 /**
  * An MDM payload for RemovalPassword.
- * 
+ *
  * @author Sylvain Pedneault
  */
-public class RemovalPasswordPayload extends MobileConfigPayload {
+class RemovalPasswordPayload extends MobileConfigPayload {
+  public RemovalPasswordPayload(final int payloadVersion, final String payloadOrganization, final String payloadIdentifier, final String payloadDisplayName) throws JSONException {
+    super(payloadVersion, "com.apple.profileRemovalPassword", payloadOrganization, payloadIdentifier, payloadDisplayName);
+  }
 
-	public RemovalPasswordPayload(int payloadVersion, String payloadOrganization, String payloadIdentifier, String payloadDisplayName) throws JSONException {
-		super(payloadVersion, "com.apple.profileRemovalPassword", payloadOrganization, payloadIdentifier, payloadDisplayName);
-	}
-
-
-	public void setRemovalPasword(String value) throws JSONException {
-		getPayload().put("RemovalPassword", value);
-	}
-
+  public void setRemovalPasword(final String value) throws JSONException {
+    getPayload().put("RemovalPassword", value);
+  }
 }
