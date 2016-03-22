@@ -1,6 +1,7 @@
 package javapns.notification.transmission;
 
 import javapns.devices.Device;
+import javapns.devices.Devices;
 import javapns.devices.exceptions.InvalidDeviceTokenFormatException;
 import javapns.notification.*;
 
@@ -86,9 +87,9 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
   private NotificationThreads(final AppleNotificationServer server, final Payload payload, final List<Device> devices, final List<NotificationThread> threads) {
     super("javapns notification threads (" + threads.size() + " threads)");
     this.threads = threads;
-    final List<List> groups = makeGroups(devices, threads.size());
+    final List<List<?>> groups = makeGroups(devices, threads.size());
     for (int i = 0; i < groups.size(); i++) {
-      threads.get(i).setDevices(groups.get(i));
+      threads.get(i).setDevices((List<Device>) groups.get(i));
     }
   }
 
@@ -129,7 +130,8 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * @param production true to use Apple's production servers, false to use the sandbox
    * @param payload    the payload to push
    * @param threads    a list of pre-built threads
-   * @throws Exception
+   *
+   * @throws Exception If the keystore cannot be loaded
    */
   public NotificationThreads(final Object keystore, final String password, final boolean production, final Payload payload, final List<NotificationThread> threads) throws Exception {
     this(new AppleNotificationServerBasicImpl(keystore, password, production), payload, threads);
@@ -151,12 +153,12 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
   /**
    * Create groups of devices or payload/device pairs ready to be dispatched to worker threads.
    *
-   * @param devices a large list of devices
+   * @param objects a large list of devices
    * @param threads the number of threads to group devices for
    * @return
    */
-  private static List<List> makeGroups(final List objects, final int threads) {
-    final List<List> groups = new Vector<>(threads);
+  private static List<List<?>> makeGroups(final List<?> objects, final int threads) {
+    final List<List<?>> groups = new Vector<>(threads);
     final int total = objects.size();
     int devicesPerThread = (total / threads);
     if (total % threads > 0) {
@@ -177,6 +179,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
       final List threadObjects = objects.subList(firstObject, lastObject);
       groups.add(threadObjects);
     }
+
     return groups;
   }
 
