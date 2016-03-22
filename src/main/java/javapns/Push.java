@@ -19,10 +19,10 @@ import java.util.Vector;
 
 /**
  * <p>Main class for easily interacting with the Apple Push Notification System</p>
- * <p>
+ *
  * <p>This is the best starting point for pushing simple or custom notifications,
  * or for contacting the Feedback Service to cleanup your list of devices.</p>
- * <p>
+ *
  * <p>The <b>JavaPNS</b> library also includes more advanced options such as
  * multithreaded transmission, special payloads, and more.
  * See the library's documentation at <a href="http://code.google.com/p/javapns/">http://code.google.com/p/javapns/</a>
@@ -43,7 +43,7 @@ public class Push {
    * @param keystore   a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password   the keystore's password.
    * @param production true to use Apple's production servers, false to use the sandbox servers.
-   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -59,7 +59,7 @@ public class Push {
    * @param keystore   a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password   the keystore's password.
    * @param production true to use Apple's production servers, false to use the sandbox servers.
-   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -75,7 +75,7 @@ public class Push {
    * @param keystore   a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password   the keystore's password.
    * @param production true to use Apple's production servers, false to use the sandbox servers.
-   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -93,7 +93,7 @@ public class Push {
    * @param keystore   a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password   the keystore's password.
    * @param production true to use Apple's production servers, false to use the sandbox servers.
-   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -108,7 +108,7 @@ public class Push {
    * @param keystore   a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password   the keystore's password.
    * @param production true to use Apple's production servers, false to use the sandbox servers.
-   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -123,7 +123,7 @@ public class Push {
    * @param keystore   a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password   the keystore's password.
    * @param production true to use Apple's production servers, false to use the sandbox servers.
-   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -139,7 +139,7 @@ public class Push {
    * @param keystore   a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password   the keystore's password.
    * @param production true to use Apple's production servers, false to use the sandbox servers.
-   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -155,7 +155,7 @@ public class Push {
    * @param keystore   a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password   the keystore's password.
    * @param production true to use Apple's production servers, false to use the sandbox servers.
-   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices    a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -197,7 +197,7 @@ public class Push {
    * @param password        the keystore's password.
    * @param production      true to use Apple's production servers, false to use the sandbox servers.
    * @param numberOfThreads the number of parallel threads to use to push the notifications
-   * @param devices         a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List}<{@link java.lang.String}>, {@link javapns.devices.Device Device[]}, {@link java.util.List}<{@link javapns.devices.Device}>, {@link java.lang.String} or {@link javapns.devices.Device}
+   * @param devices         a list or an array of tokens or devices: {@link java.lang.String String[]}, {@link java.util.List} {@link java.lang.String},  {@link javapns.devices.Device Device[]}, {@link java.util.List} {@link javapns.devices.Device},  {@link java.lang.String} or {@link javapns.devices.Device}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws Exception thrown if any critical exception occurs
    */
@@ -241,7 +241,7 @@ public class Push {
    * @param keystore           a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password           the keystore's password.
    * @param production         true to use Apple's production servers, false to use the sandbox servers.
-   * @param payloadDevicePairs a list or an array of PayloadPerDevice: {@link java.util.List}<{@link javapns.notification.PayloadPerDevice}>, {@link javapns.notification.PayloadPerDevice PayloadPerDevice[]} or {@link javapns.notification.PayloadPerDevice}
+   * @param payloadDevicePairs a list or an array of PayloadPerDevice: {@link java.util.List} {@link javapns.notification.PayloadPerDevice},  {@link javapns.notification.PayloadPerDevice PayloadPerDevice[]} or {@link javapns.notification.PayloadPerDevice}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -257,7 +257,7 @@ public class Push {
    * @param password           the keystore's password.
    * @param production         true to use Apple's production servers, false to use the sandbox servers.
    * @param numberOfThreads    the number of parallel threads to use to push the notifications
-   * @param payloadDevicePairs a list or an array of PayloadPerDevice: {@link java.util.List}<{@link javapns.notification.PayloadPerDevice}>, {@link javapns.notification.PayloadPerDevice PayloadPerDevice[]} or {@link javapns.notification.PayloadPerDevice}
+   * @param payloadDevicePairs a list or an array of PayloadPerDevice: {@link java.util.List} {@link javapns.notification.PayloadPerDevice},  {@link javapns.notification.PayloadPerDevice PayloadPerDevice[]} or {@link javapns.notification.PayloadPerDevice}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws Exception thrown if any critical exception occurs
    */
@@ -282,7 +282,7 @@ public class Push {
    * @param keystore           a keystore containing your private key and the certificate signed by Apple ({@link java.io.File}, {@link java.io.InputStream}, byte[], {@link java.security.KeyStore} or {@link java.lang.String} for a file path)
    * @param password           the keystore's password.
    * @param production         true to use Apple's production servers, false to use the sandbox servers.
-   * @param payloadDevicePairs a list or an array of PayloadPerDevice: {@link java.util.List}<{@link javapns.notification.PayloadPerDevice}>, {@link javapns.notification.PayloadPerDevice PayloadPerDevice[]} or {@link javapns.notification.PayloadPerDevice}
+   * @param payloadDevicePairs a list or an array of PayloadPerDevice: {@link java.util.List} {@link javapns.notification.PayloadPerDevice},  {@link javapns.notification.PayloadPerDevice PayloadPerDevice[]} or {@link javapns.notification.PayloadPerDevice}
    * @return a list of pushed notifications, each with details on transmission results and error (if any)
    * @throws KeystoreException      thrown if an error occurs when loading the keystore
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
@@ -319,21 +319,21 @@ public class Push {
 
   /**
    * <p>Retrieve a list of devices that should be removed from future notification lists.</p>
-   * <p>
+   *
    * <p>Devices in this list are ones that you previously tried to push a notification to,
    * but to which Apple could not actually deliver because the device user has either
    * opted out of notifications, has uninstalled your application, or some other conditions.</p>
-   * <p>
+   *
    * <p>Important: Apple's Feedback Service always resets its list of inactive devices
    * after each time you contact it.  Calling this method twice will not return the same
    * list of devices!</p>
-   * <p>
+   *
    * <p>Please be aware that Apple does not specify precisely when a device will be listed
    * by the Feedback Service.  More specifically, it is unlikely that the device will
    * be  listed immediately if you uninstall the application during testing.  It might
    * get listed after some number of notifications couldn't reach it, or some amount of
    * time has elapsed, or a combination of both.</p>
-   * <p>
+   *
    * <p>Further more, if you are using Apple's sandbox servers, the Feedback Service will
    * probably not list your device if you uninstalled your app and it was the last one
    * on your device that was configured to receive notifications from the sandbox.
