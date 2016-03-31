@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mlaccetti/JavaPNS.svg?branch=develop)](https://travis-ci.org/mlaccetti/JavaPNS)
 [![Coverage Status](https://coveralls.io/repos/github/mlaccetti/JavaPNS/badge.svg?branch=master)](https://coveralls.io/github/mlaccetti/JavaPNS?branch=develop)
+[![Code Climate](https://codeclimate.com/github/mlaccetti/JavaPNS/badges/gpa.svg)](https://codeclimate.com/github/mlaccetti/JavaPNS)
 
 Apple Push Notification Service Provider for Java
 
