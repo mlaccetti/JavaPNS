@@ -4,5 +4,6 @@ jdk:
   - oraclejdk8
 
 cache:
+  apt: true
   directories:
     - $HOME/.m2
