@@ -11,7 +11,7 @@ cache:
     - $HOME/.m2
 
 script:
-  - mvn clean build -Dmaven.test.skip=true
+  - mvn clean compile -Dmaven.test.skip=true
 
 after_success:
   - mvn clean test jacoco:report coveralls:report
