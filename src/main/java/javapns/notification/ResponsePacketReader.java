@@ -61,7 +61,6 @@ class ResponsePacketReader {
 
     } catch (final Exception e) {
       /* Ignore exception, as we are expecting timeout exceptions because Apple might not reply anything */
-      //System.out.println(e);
     }
     /* Reset socket timeout, just in case */
     try {
@@ -69,7 +68,6 @@ class ResponsePacketReader {
     } catch (final Exception e) {
       // empty
     }
-    //System.out.println("Received "+responses.size()+" response packets");
     return responses;
   }
 
