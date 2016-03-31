@@ -21,6 +21,8 @@ import java.util.Enumeration;
 public class KeystoreManager {
   private static final String REVIEW_MESSAGE = " Please review the procedure for generating a keystore for JavaPNS.";
 
+  private KeystoreManager() {}
+
   /**
    * Loads a keystore.
    *

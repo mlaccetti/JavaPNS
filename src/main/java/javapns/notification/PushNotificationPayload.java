@@ -125,6 +125,7 @@ public class PushNotificationPayload extends Payload {
     try {
       payload.addSound(sound);
     } catch (final JSONException e) {
+      logger.error(e.getMessage(), e);
     }
     return payload;
   }
@@ -153,6 +154,7 @@ public class PushNotificationPayload extends Payload {
         payload.addSound(sound);
       }
     } catch (final JSONException e) {
+      logger.error(e.getMessage(), e);
     }
     return payload;
   }
