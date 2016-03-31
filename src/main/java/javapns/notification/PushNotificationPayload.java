@@ -3,6 +3,8 @@ package javapns.notification;
 import javapns.notification.exceptions.PayloadAlertAlreadyExistsException;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -13,6 +15,9 @@ import java.util.List;
  * @author Sylvain Pedneault
  */
 public class PushNotificationPayload extends Payload {
+
+  static final Logger logger = LoggerFactory.getLogger(PushNotificationPayload.class);
+
   /* Maximum total length (serialized) of a payload */
   private static final int MAXIMUM_PAYLOAD_LENGTH = 256;
 
@@ -31,7 +36,7 @@ public class PushNotificationPayload extends Payload {
         payload.put("aps", this.apsDictionary);
       }
     } catch (final JSONException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage(), e);
     }
   }
 
@@ -53,7 +58,7 @@ public class PushNotificationPayload extends Payload {
       }
 
     } catch (final JSONException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage(), e);
     }
   }
 
