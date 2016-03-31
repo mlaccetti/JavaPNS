@@ -7,3 +7,6 @@ cache:
   apt: true
   directories:
     - $HOME/.m2
+
+after_success:
+  - mvn clean test jacoco:report coveralls:report
