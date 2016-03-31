@@ -1,5 +1,8 @@
 ## JavaPNS
 
+[![Build Status](https://travis-ci.org/mlaccetti/JavaPNS.svg?branch=develop)](https://travis-ci.org/mlaccetti/JavaPNS)
+[![Coverage Status](https://coveralls.io/repos/github/mlaccetti/JavaPNS/badge.svg?branch=master)](https://coveralls.io/github/mlaccetti/JavaPNS?branch=develop)
+
 Apple Push Notification Service Provider for Java
 
 Fork of JavaPNS to include Maven support - http://code.google.com/p/javapns/
