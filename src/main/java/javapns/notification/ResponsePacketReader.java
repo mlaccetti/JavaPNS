@@ -17,6 +17,8 @@ class ResponsePacketReader {
   /* The number of seconds to wait for a response */
   private static final int TIMEOUT = 5 * 1000;
 
+  private ResponsePacketReader() {}
+
   /**
    * Read response packets from the current APNS connection and process them.
    *

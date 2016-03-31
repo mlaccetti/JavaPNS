@@ -13,6 +13,8 @@ import javapns.notification.*;
 import javapns.notification.transmission.NotificationThread;
 import javapns.notification.transmission.NotificationThreads;
 import javapns.notification.transmission.PushQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Vector;
@@ -32,6 +34,9 @@ import java.util.Vector;
  * @see NotificationThreads
  */
 public class Push {
+
+  private static final Logger logger = LoggerFactory.getLogger(Push.class);
+
   private Push() {
     // empty
   }
@@ -184,6 +189,7 @@ public class Push {
       try {
         pushManager.stopConnection();
       } catch (final Exception e) {
+        logger.error(e.getMessage(), e);
       }
     }
     return notifications;
@@ -212,6 +218,7 @@ public class Push {
     try {
       threads.waitForAllThreads(true);
     } catch (final InterruptedException e) {
+      logger.error(e.getMessage(), e);
     }
     return threads.getPushedNotifications();
   }
@@ -272,6 +279,7 @@ public class Push {
     try {
       threads.waitForAllThreads(true);
     } catch (final InterruptedException e) {
+      logger.error(e.getMessage(), e);
     }
     return threads.getPushedNotifications();
   }
@@ -312,6 +320,7 @@ public class Push {
       try {
         pushManager.stopConnection();
       } catch (final Exception e) {
+        logger.error(e.getMessage(), e);
       }
     }
     return notifications;
