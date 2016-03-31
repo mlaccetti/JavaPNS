@@ -15,6 +15,7 @@ import java.util.List;
 public class PushNotificationPayload extends Payload {
   /* Maximum total length (serialized) of a payload */
   private static final int MAXIMUM_PAYLOAD_LENGTH = 256;
+  public static final String ALERT = "alert";
 
   /* The application Dictionary */
   private JSONObject apsDictionary;
@@ -223,9 +224,9 @@ public class PushNotificationPayload extends Payload {
    * @throws JSONException
    */
   public void addAlert(final String alertMessage) throws JSONException {
-    final String previousAlert = getCompatibleProperty("alert", String.class, "A custom alert (\"%s\") was already added to this payload");
+    final String previousAlert = getCompatibleProperty(ALERT, String.class, "A custom alert (\"%s\") was already added to this payload");
     logger.debug("Adding alert [" + alertMessage + "]" + (previousAlert != null ? " replacing previous alert [" + previousAlert + "]" : ""));
-    put("alert", alertMessage, this.apsDictionary, false);
+    put(ALERT, alertMessage, this.apsDictionary, false);
   }
 
   /**
@@ -235,10 +236,10 @@ public class PushNotificationPayload extends Payload {
    * @throws JSONException if a simple alert has already been added to this payload
    */
   private JSONObject getOrAddCustomAlert() throws JSONException {
-    JSONObject alert = getCompatibleProperty("alert", JSONObject.class, "A simple alert (\"%s\") was already added to this payload");
+    JSONObject alert = getCompatibleProperty(ALERT, JSONObject.class, "A simple alert (\"%s\") was already added to this payload");
     if (alert == null) {
       alert = new JSONObject();
-      put("alert", alert, this.apsDictionary, false);
+      put(ALERT, alert, this.apsDictionary, false);
     }
     return alert;
   }

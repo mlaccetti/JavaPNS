@@ -175,7 +175,7 @@ public abstract class ConnectionToAppleServer {
     final OutputStream out = tunnel.getOutputStream();
 
     final String msg = "CONNECT " + host + ":" + port + " HTTP/1.0\n" + "User-Agent: BoardPad Server" + "\r\n\r\n";
-    byte b[];
+    byte[] b;
     try { //We really do want ASCII7 -- the http protocol doesn't change with locale.
       b = msg.getBytes("ASCII7");
     } catch (final UnsupportedEncodingException ignored) { //If ASCII7 isn't there, something serious is wrong, but Paranoia Is Good (tm)
