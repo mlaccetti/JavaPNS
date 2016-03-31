@@ -12,6 +12,7 @@ Java 1.8+ compatible
 ### Updates
 
 Version 2.3.2 released!
+
 #### 2.3.2 Changes
 * 1.8 tweaks
 * General cleanup and overhaul
@@ -34,3 +35,7 @@ To use javapns-jdk16 in your project, please add the following dependency to you
 	<version>2.3.2</version>
 </dependency>
 ```
+
+### Cutting a Release
+
+`mvn -Drelease=true ...`
