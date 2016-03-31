@@ -370,23 +370,6 @@ public class PushNotificationManager {
     return sendNotification(device, payload, false, identifier);
   }
 
-  //  /**
-  //   * Set the proxy if needed
-  //   * @param host the proxyHost
-  //   * @param port the proxyPort
-  //   * @deprecated Configuring a proxy with this method affects overall JVM proxy settings.
-  //   * Use AppleNotificationServer.setProxy(..) to set a proxy for JavaPNS only.
-  //   */
-  //  public void setProxy(String host, String port) {
-  //    proxySet = true;
-  //
-  //    System.setProperty("http.proxyHost", host);
-  //    System.setProperty("http.proxyPort", port);
-  //
-  //    System.setProperty("https.proxyHost", host);
-  //    System.setProperty("https.proxyPort", port);
-  //  }
-
   /**
    * Send a notification (Payload) to the given device
    *
@@ -433,9 +416,7 @@ public class PushNotificationManager {
       final String token = device.getToken();
       // even though the BasicDevice constructor validates the token, we revalidate it in case we were passed another implementation of Device
       BasicDevice.validateTokenFormat(token);
-      //    PushedNotification pushedNotification = new PushedNotification(device, payload);
       final byte[] bytes = getMessage(token, payload, identifier, notification);
-      //    pushedNotifications.put(pushedNotification.getIdentifier(), pushedNotification);
 
       /* Special simulation mode to skip actual streaming of message */
       final boolean simulationMode = payload.getExpiry() == 919191;
@@ -582,7 +563,6 @@ public class PushNotificationManager {
     logger.debug("Building Raw message from deviceToken and payload");
 
     /* To test with a corrupted or invalid token, uncomment following line*/
-    //deviceToken = deviceToken.substring(0,10);
 
     // First convert the deviceToken (in hexa form) to a binary format
     final byte[] deviceTokenAsBytes = new byte[deviceToken.length() / 2];

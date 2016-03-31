@@ -164,7 +164,6 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
     if (total % threads > 0) {
       devicesPerThread++;
     }
-    //System.out.println("Making "+threads+" groups of "+devicesPerThread+" devices out of "+total+" devices in total");
     for (int i = 0; i < threads; i++) {
       final int firstObject = i * devicesPerThread;
       if (firstObject >= total) {
@@ -175,7 +174,6 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
         lastObject = total - 1;
       }
       lastObject++;
-      //System.out.println("Grouping together "+(lastDevice-firstDevice)+" devices (#"+firstDevice+" to "+lastDevice+")");
       final List threadObjects = objects.subList(firstObject, lastObject);
       groups.add(threadObjects);
     }
