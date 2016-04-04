@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
  */
 public class NotificationThreads extends ThreadGroup implements PushQueue {
   private static final long DEFAULT_DELAY_BETWEEN_THREADS = 500; // the number of milliseconds to wait between each thread startup
+  private static final String JAVAPNS_NOTIFICATION_THREADS = "javapns notification threads (";
+  private static final String THREADS = " threads)";
 
   private final Object finishPoint = new Object();
 
@@ -44,7 +46,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * @param numberOfThreads the number of threads to create to share the work
    */
   public NotificationThreads(final AppleNotificationServer server, final Payload payload, final List<Device> devices, final int numberOfThreads) {
-    super("javapns notification threads (" + numberOfThreads + " threads)");
+    super(JAVAPNS_NOTIFICATION_THREADS + numberOfThreads + THREADS);
     threads.addAll(makeGroups(devices, numberOfThreads).stream().map(deviceGroup -> new NotificationThread(this, new PushNotificationManager(), server, payload, deviceGroup)).collect(Collectors.toList()));
   }
 
@@ -56,7 +58,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * @param numberOfThreads the number of threads to create to share the work
    */
   public NotificationThreads(final AppleNotificationServer server, final List<PayloadPerDevice> messages, final int numberOfThreads) {
-    super("javapns notification threads (" + numberOfThreads + " threads)");
+    super(JAVAPNS_NOTIFICATION_THREADS + numberOfThreads + THREADS);
     threads.addAll(makeGroups(messages, numberOfThreads).stream().map(deviceGroup -> new NotificationThread(this, new PushNotificationManager(), server, deviceGroup)).collect(Collectors.toList()));
   }
 
@@ -86,7 +88,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    */
   @SuppressWarnings("unchecked")
   private NotificationThreads(final AppleNotificationServer server, final Payload payload, final List<Device> devices, final List<NotificationThread> threads) {
-    super("javapns notification threads (" + threads.size() + " threads)");
+    super(JAVAPNS_NOTIFICATION_THREADS + threads.size() + THREADS);
     this.threads = threads;
     final List<List<?>> groups = makeGroups(devices, threads.size());
     for (int i = 0; i < groups.size(); i++) {
@@ -118,7 +120,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * @param threads a list of pre-built threads
    */
   private NotificationThreads(final AppleNotificationServer server, final Payload payload, final List<NotificationThread> threads) {
-    super("javapns notification threads (" + threads.size() + " threads)");
+    super(JAVAPNS_NOTIFICATION_THREADS + threads.size() + THREADS);
     this.threads = threads;
   }
 
@@ -145,7 +147,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * @param numberOfThreads the number of threads to create in the pool
    */
   public NotificationThreads(final AppleNotificationServer server, final int numberOfThreads) {
-    super("javapns notification thread pool (" + numberOfThreads + " threads)");
+    super("javapns notification thread pool (" + numberOfThreads + THREADS);
     for (int i = 0; i < numberOfThreads; i++) {
       threads.add(new NotificationThread(this, new PushNotificationManager(), server));
     }
@@ -375,7 +377,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
     waitForAllThreads();
     if (throwCriticalExceptions) {
       final List<Exception> exceptions = getCriticalExceptions();
-      if (exceptions.size() > 0) {
+      if (!exceptions.isEmpty()) {
         throw exceptions.get(0);
       }
     }

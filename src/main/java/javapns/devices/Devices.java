@@ -19,7 +19,7 @@ public class Devices {
 
     if (rawList instanceof List) {
       final List devices = (List) rawList;
-      if (devices.size() == 0) {
+      if (devices.isEmpty()) {
         return list;
       }
 
@@ -63,7 +63,7 @@ public class Devices {
     }
     if (rawList instanceof List) {
       final List devices = (List) rawList;
-      if (devices.size() == 0) {
+      if (devices.isEmpty()) {
         return list;
       }
       //noinspection unchecked

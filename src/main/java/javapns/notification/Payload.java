@@ -24,6 +24,9 @@ public abstract class Payload {
 
   /* Character encoding specified by Apple documentation */
   private static final String DEFAULT_CHARACTER_ENCODING = "UTF-8";
+  private static final String ADDING_CUSTOM_DICTIONARY = "Adding custom Dictionary [";
+  private static final String DELIMITER_START = "] = [";
+  private static final String DELIMITED_END = "]";
   /* The root Payload */
   private final JSONObject payload;
 
@@ -74,7 +77,7 @@ public abstract class Payload {
    * @throws JSONException
    */
   public void addCustomDictionary(final String name, final String value) throws JSONException {
-    logger.debug("Adding custom Dictionary [" + name + "] = [" + value + "]");
+    logger.debug(ADDING_CUSTOM_DICTIONARY + name + DELIMITER_START + value + DELIMITED_END);
     put(name, value, payload, false);
   }
 
@@ -86,7 +89,7 @@ public abstract class Payload {
    * @throws JSONException
    */
   public void addCustomDictionary(final String name, final int value) throws JSONException {
-    logger.debug("Adding custom Dictionary [" + name + "] = [" + value + "]");
+    logger.debug(ADDING_CUSTOM_DICTIONARY + name + DELIMITER_START + value + DELIMITED_END);
     put(name, value, payload, false);
   }
 
@@ -98,7 +101,7 @@ public abstract class Payload {
    * @throws JSONException
    */
   public void addCustomDictionary(final String name, final List values) throws JSONException {
-    logger.debug("Adding custom Dictionary [" + name + "] = (list)");
+    logger.debug(ADDING_CUSTOM_DICTIONARY + name + "] = (list)");
     put(name, values, payload, false);
   }
 
@@ -110,7 +113,7 @@ public abstract class Payload {
    * @throws JSONException
    */
   public void addCustomDictionary(final String name, final Object value) throws JSONException {
-    logger.debug("Adding custom Dictionary [" + name + "] = [" + value + "]");
+    logger.debug(ADDING_CUSTOM_DICTIONARY + name + DELIMITER_START + value + DELIMITED_END);
     put(name, value, payload, false);
   }
 
