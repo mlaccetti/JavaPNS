@@ -7,6 +7,7 @@ import javapns.devices.Devices;
 import javapns.devices.exceptions.InvalidDeviceTokenFormatException;
 import javapns.notification.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -54,7 +55,7 @@ public class NotificationThread implements Runnable, PushQueue {
   private List<Device> devices;
   /* Individual payload per device */
 
-  private List<PayloadPerDevice> messages = new Vector<>();
+  private List<PayloadPerDevice> messages = new ArrayList<>();
 
   private Exception exception;
 
@@ -504,7 +505,7 @@ public class NotificationThread implements Runnable, PushQueue {
    * @return a list containing a critical exception, if any occurred
    */
   public List<Exception> getCriticalExceptions() {
-    final List<Exception> exceptions = new Vector<>(exception == null ? 0 : 1);
+    final List<Exception> exceptions = new ArrayList<>(exception == null ? 0 : 1);
     if (exception != null) {
       exceptions.add(exception);
     }
