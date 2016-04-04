@@ -5,6 +5,7 @@ import javapns.devices.Devices;
 import javapns.devices.exceptions.InvalidDeviceTokenFormatException;
 import javapns.notification.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
 
   private final Object finishPoint = new Object();
 
-  private List<NotificationThread> threads = new Vector<>();
+  private List<NotificationThread> threads = new ArrayList<>();
   private NotificationProgressListener listener;
 
   private boolean started = false;
@@ -158,9 +159,9 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * @return
    */
   private static List<List<?>> makeGroups(final List<?> objects, final int threads) {
-    final List<List<?>> groups = new Vector<>(threads);
+    final List<List<?>> groups = new ArrayList<>(threads);
     final int total = objects.size();
-    int devicesPerThread = (total / threads);
+    int devicesPerThread = total / threads;
     if (total % threads > 0) {
       devicesPerThread++;
     }
@@ -449,7 +450,7 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * @return a list of critical exceptions
    */
   public List<Exception> getCriticalExceptions() {
-    final List<Exception> exceptions = new Vector<>();
+    final List<Exception> exceptions = new ArrayList<>();
     for (final NotificationThread thread : threads) {
       final Exception exception = thread.getCriticalException();
       if (exception != null) {
