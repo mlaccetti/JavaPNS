@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Vector;
 
 public class Devices {
+
+  private Devices() {}
+
   public static List<Device> asDevices(final Object rawList) {
     final List<Device> list = new Vector<>();
     if (rawList == null) {
