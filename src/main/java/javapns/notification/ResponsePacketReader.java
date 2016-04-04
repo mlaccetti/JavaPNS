@@ -74,7 +74,6 @@ class ResponsePacketReader {
   }
 
   private static void handleResponses(final List<ResponsePacket> responses, final PushNotificationManager notificationManager) {
-    final Map<Integer, PushedNotification> envelopes = notificationManager.getPushedNotifications();
     for (final ResponsePacket response : responses) {
       response.linkToPushedNotification(notificationManager);
     }

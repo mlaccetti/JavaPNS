@@ -2,6 +2,8 @@ package javapns.notification;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Newsstand-specific payload compatible with the Apple Push Notification Service.
@@ -9,6 +11,9 @@ import org.json.JSONObject;
  * @author Sylvain Pedneault
  */
 public class NewsstandNotificationPayload extends Payload {
+
+  static final Logger logger = LoggerFactory.getLogger(NewsstandNotificationPayload.class);
+
   /* The application Dictionnary */
   private final JSONObject apsDictionary;
 
@@ -22,7 +27,7 @@ public class NewsstandNotificationPayload extends Payload {
       final JSONObject payload = getPayload();
       payload.put("aps", this.apsDictionary);
     } catch (final JSONException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage(), e);
     }
   }
 
