@@ -153,23 +153,6 @@ public class FeedbackServiceManager {
     return listDev;
   }
 
-  //  /**
-  //   * Set the proxy if needed
-  //   * @param host the proxyHost
-  //   * @param port the proxyPort
-  //   * @deprecated Configuring a proxy with this method affects overall JVM proxy settings.
-  //   * Use AppleFeedbackServer.setProxy(..) to set a proxy for JavaPNS only.
-  //   */
-  //  public void setProxy(String host, String port) {
-  //    this.proxySet = true;
-  //
-  //    System.setProperty("http.proxyHost", host);
-  //    System.setProperty("http.proxyPort", port);
-  //
-  //    System.setProperty("https.proxyHost", host);
-  //    System.setProperty("https.proxyPort", port);
-  //  }
-
   /**
    * @return a device factory
    * @deprecated The DeviceFactory-based architecture is deprecated.

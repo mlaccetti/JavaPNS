@@ -20,6 +20,6 @@ class ServerTrustingTrustManager implements X509TrustManager {
   }
 
   public X509Certificate[] getAcceptedIssuers() {
-    return null;//new X509Certificate[0];
+    return null;
   }
 }
