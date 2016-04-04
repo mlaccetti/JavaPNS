@@ -261,7 +261,6 @@ public class PushNotificationManager {
       logger.debug("Reading responses");
       int responsesReceived = ResponsePacketReader.processResponses(this);
       while (responsesReceived > 0) {
-        final PushedNotification skippedNotification = null;
         final List<PushedNotification> notificationsToResend = new ArrayList<>();
         boolean foundFirstFail = false;
         for (final PushedNotification notification : pushedNotifications.values()) {
@@ -442,7 +441,6 @@ public class PushNotificationManager {
 
       boolean success = false;
 
-      final BufferedReader in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
       final int socketTimeout = getSslSocketTimeout();
       if (socketTimeout > 0) {
         this.socket.setSoTimeout(socketTimeout);
