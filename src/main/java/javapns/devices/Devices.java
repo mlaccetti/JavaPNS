@@ -3,16 +3,16 @@ package javapns.devices;
 import javapns.devices.implementations.basic.BasicDevice;
 import javapns.notification.PayloadPerDevice;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 public class Devices {
 
   private Devices() {}
 
   public static List<Device> asDevices(final Object rawList) {
-    final List<Device> list = new Vector<>();
+    final List<Device> list = new ArrayList<>();
     if (rawList == null) {
       return list;
     }
@@ -57,7 +57,7 @@ public class Devices {
   }
 
   public static List<PayloadPerDevice> asPayloadsPerDevices(final Object rawList) {
-    final List<PayloadPerDevice> list = new Vector<>();
+    final List<PayloadPerDevice> list = new ArrayList<>();
     if (rawList == null) {
       return list;
     }

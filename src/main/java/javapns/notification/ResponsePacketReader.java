@@ -3,6 +3,7 @@ package javapns.notification;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -41,7 +42,7 @@ class ResponsePacketReader {
    * @return
    */
   private static List<ResponsePacket> readResponses(final Socket socket) {
-    final List<ResponsePacket> responses = new Vector<>();
+    final List<ResponsePacket> responses = new ArrayList<>();
     int previousTimeout = 0;
     try {
       /* Set socket timeout to avoid getting stuck on read() */

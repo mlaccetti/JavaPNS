@@ -3,8 +3,8 @@ package javapns.notification;
 import javapns.devices.Device;
 import javapns.notification.exceptions.ErrorResponsePacketReceivedException;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * <p>An object representing the result of a push notification to a specific payload to a single device.</p>
@@ -53,7 +53,7 @@ public class PushedNotification {
    * @return a filtered list containing only notifications that were succcessful
    */
   public static List<PushedNotification> findSuccessfulNotifications(final List<PushedNotification> notifications) {
-    final List<PushedNotification> filteredList = new Vector<>();
+    final List<PushedNotification> filteredList = new ArrayList<>();
     for (final PushedNotification notification : notifications) {
       if (notification.isSuccessful()) {
         filteredList.add(notification);
@@ -69,7 +69,7 @@ public class PushedNotification {
    * @return a filtered list containing only notifications that were <b>not</b> successful
    */
   public static List<PushedNotification> findFailedNotifications(final List<PushedNotification> notifications) {
-    final List<PushedNotification> filteredList = new Vector<>();
+    final List<PushedNotification> filteredList = new ArrayList<>();
     for (final PushedNotification notification : notifications) {
       if (!notification.isSuccessful()) {
         filteredList.add(notification);

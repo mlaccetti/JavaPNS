@@ -16,8 +16,8 @@ import javapns.notification.transmission.PushQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * <p>Main class for easily interacting with the Apple Push Notification System</p>
@@ -356,7 +356,7 @@ public class Push {
    * @throws CommunicationException thrown if an unrecoverable error occurs while trying to communicate with Apple servers
    */
   public static List<Device> feedback(final Object keystore, final String password, final boolean production) throws CommunicationException, KeystoreException {
-    final List<Device> devices = new Vector<>();
+    final List<Device> devices = new ArrayList<>();
     final FeedbackServiceManager feedbackManager = new FeedbackServiceManager();
     final AppleFeedbackServer server = new AppleFeedbackServerBasicImpl(keystore, password, production);
     devices.addAll(feedbackManager.getDevices(server));
