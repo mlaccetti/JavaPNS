@@ -1,5 +1,6 @@
 package javapns.notification;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
@@ -13,7 +14,7 @@ import java.util.Vector;
  *
  * @author Sylvain Pedneault
  */
-public class PushedNotifications extends Vector<PushedNotification> implements List<PushedNotification> {
+public class PushedNotifications extends ArrayList<PushedNotification> implements List<PushedNotification> {
   private static final long serialVersionUID = 1418782231076330494L;
   private int maxRetained = 1000;
 
@@ -75,12 +76,6 @@ public class PushedNotifications extends Vector<PushedNotification> implements L
   public synchronized boolean add(final PushedNotification notification) {
     prepareAdd(1);
     return super.add(notification);
-  }
-
-  @Override
-  public synchronized void addElement(final PushedNotification notification) {
-    prepareAdd(1);
-    super.addElement(notification);
   }
 
   @Override
