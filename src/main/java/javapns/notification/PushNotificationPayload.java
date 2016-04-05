@@ -4,6 +4,7 @@ import javapns.notification.exceptions.PayloadAlertAlreadyExistsException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.IllegalFormatException;
 import java.util.List;
 
 /**
@@ -292,11 +293,10 @@ public class PushNotificationPayload extends Payload {
       return (T) propertyValue;
     }
     try {
-      exceptionMessage = String.format(exceptionMessage, propertyValue);
-    } catch (final Exception e) {
-      // empty
+      throw new PayloadAlertAlreadyExistsException(String.format(exceptionMessage, propertyValue));
+    } catch (final IllegalFormatException e) {
+      throw new PayloadAlertAlreadyExistsException(exceptionMessage);
     }
-    throw new PayloadAlertAlreadyExistsException(exceptionMessage);
 
   }
 

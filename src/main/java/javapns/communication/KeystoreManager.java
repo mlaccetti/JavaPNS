@@ -82,7 +82,7 @@ public class KeystoreManager {
    */
   static Object ensureReusableKeystore(final AppleServer server, Object keystore) throws KeystoreException {
     if (keystore instanceof InputStream) {
-      keystore = loadKeystore(server, keystore, false);
+      return loadKeystore(server, keystore, false);
     }
     return keystore;
   }
@@ -233,19 +233,11 @@ public class KeystoreManager {
       return;
     }
     if (keystore instanceof String) {
-      keystore = new File((String) keystore);
+      validateFileKeystore(new File((String) keystore));
+      return;
     }
     if (keystore instanceof File) {
-      final File file = (File) keystore;
-      if (!file.exists()) {
-        throw new InvalidKeystoreReferenceException("Invalid keystore reference.  File does not exist: " + file.getAbsolutePath());
-      }
-      if (!file.isFile()) {
-        throw new InvalidKeystoreReferenceException("Invalid keystore reference.  Path does not refer to a valid file: " + file.getAbsolutePath());
-      }
-      if (file.length() <= 0) {
-        throw new InvalidKeystoreReferenceException("Invalid keystore reference.  File is empty: " + file.getAbsolutePath());
-      }
+      validateFileKeystore((File) keystore);
       return;
     }
     if (keystore instanceof byte[]) {
@@ -256,6 +248,20 @@ public class KeystoreManager {
       return;
     }
     throw new InvalidKeystoreReferenceException(keystore);
+  }
+
+  private static void validateFileKeystore(File keystore) throws InvalidKeystoreReferenceException {
+    final File file = keystore;
+    if (!file.exists()) {
+      throw new InvalidKeystoreReferenceException("Invalid keystore reference.  File does not exist: " + file.getAbsolutePath());
+    }
+    if (!file.isFile()) {
+      throw new InvalidKeystoreReferenceException("Invalid keystore reference.  Path does not refer to a valid file: " + file.getAbsolutePath());
+    }
+    if (file.length() <= 0) {
+      throw new InvalidKeystoreReferenceException("Invalid keystore reference.  File is empty: " + file.getAbsolutePath());
+    }
+    return;
   }
 
 }

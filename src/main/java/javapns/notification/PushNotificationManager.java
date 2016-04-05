@@ -586,18 +586,18 @@ public class PushNotificationManager {
 
     // First convert the deviceToken (in hexa form) to a binary format
     final byte[] deviceTokenAsBytes = new byte[deviceToken.length() / 2];
-    deviceToken = deviceToken.toUpperCase();
+    final String upperCasedDeviceToken = deviceToken.toUpperCase();
     int j = 0;
     try {
-      for (int i = 0; i < deviceToken.length(); i += 2) {
-        final String t = deviceToken.substring(i, i + 2);
+      for (int i = 0; i < upperCasedDeviceToken.length(); i += 2) {
+        final String t = upperCasedDeviceToken.substring(i, i + 2);
         final int tmp = Integer.parseInt(t, 16);
         deviceTokenAsBytes[j++] = (byte) tmp;
       }
     } catch (final NumberFormatException e1) {
-      throw new InvalidDeviceTokenFormatException(deviceToken, e1.getMessage());
+      throw new InvalidDeviceTokenFormatException(upperCasedDeviceToken, e1.getMessage());
     }
-    preconfigurePayload(payload, identifier, deviceToken);
+    preconfigurePayload(payload, identifier, upperCasedDeviceToken);
     // Create the ByteArrayOutputStream which will contain the raw interface
     final byte[] payloadAsBytes = payload.getPayloadAsBytes();
     final int size = (Byte.SIZE / Byte.SIZE) + (Character.SIZE / Byte.SIZE) + deviceTokenAsBytes.length + (Character.SIZE / Byte.SIZE) + payloadAsBytes.length;
