@@ -136,9 +136,9 @@ public abstract class Payload {
    * @return byte[] bytes ready to be streamed directly to Apple servers
    */
   public byte[] getPayloadAsBytes() throws Exception {
-    final byte[] payload = getPayloadAsBytesUnchecked();
-    validateMaximumPayloadSize(payload.length);
-    return payload;
+    final byte[] payloadBytesUnchecked = getPayloadAsBytesUnchecked();
+    validateMaximumPayloadSize(payloadBytesUnchecked.length);
+    return payloadBytesUnchecked;
   }
 
   /**

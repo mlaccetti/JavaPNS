@@ -132,14 +132,14 @@ public abstract class ConnectionToAppleServer {
    * @throws CommunicationException
    */
   public SSLSocket getSSLSocket() throws KeystoreException, CommunicationException {
-    final SSLSocketFactory socketFactory = getSSLSocketFactory();
+    final SSLSocketFactory sslSocketFactory = getSSLSocketFactory();
     logger.debug("Creating SSLSocket to " + getServerHost() + ":" + getServerPort());
 
     try {
       if (ProxyManager.isUsingProxy(server)) {
-        return tunnelThroughProxy(socketFactory);
+        return tunnelThroughProxy(sslSocketFactory);
       } else {
-        return (SSLSocket) socketFactory.createSocket(getServerHost(), getServerPort());
+        return (SSLSocket) sslSocketFactory.createSocket(getServerHost(), getServerPort());
       }
     } catch (final Exception e) {
       throw new CommunicationException("Communication exception: " + e, e);

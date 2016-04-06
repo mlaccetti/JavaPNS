@@ -90,23 +90,23 @@ class ResponsePacketReader {
       return null;
     }
 
-    final int identifier_byte1 = input.read();
-    if (identifier_byte1 < 0) {
+    final int identifierByte1 = input.read();
+    if (identifierByte1 < 0) {
       return null;
     }
-    final int identifier_byte2 = input.read();
-    if (identifier_byte2 < 0) {
+    final int identifierByte2 = input.read();
+    if (identifierByte2 < 0) {
       return null;
     }
-    final int identifier_byte3 = input.read();
-    if (identifier_byte3 < 0) {
+    final int identifierByte3 = input.read();
+    if (identifierByte3 < 0) {
       return null;
     }
-    final int identifier_byte4 = input.read();
-    if (identifier_byte4 < 0) {
+    final int identifierByte4 = input.read();
+    if (identifierByte4 < 0) {
       return null;
     }
-    final int identifier = (identifier_byte1 << 24) + (identifier_byte2 << 16) + (identifier_byte3 << 8) + (identifier_byte4);
+    final int identifier = (identifierByte1 << 24) + (identifierByte2 << 16) + (identifierByte3 << 8) + (identifierByte4);
     return new ResponsePacket(command, status, identifier);
   }
 }
