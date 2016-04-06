@@ -55,8 +55,7 @@ public class NewsstandNotificationPayload extends Payload {
    * @return a blank payload that can be customized
    */
   private static NewsstandNotificationPayload complex() {
-    final NewsstandNotificationPayload payload = new NewsstandNotificationPayload();
-    return payload;
+    return new NewsstandNotificationPayload();
   }
 
   private void addContentAvailable() throws JSONException {

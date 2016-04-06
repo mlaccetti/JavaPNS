@@ -354,12 +354,8 @@ public class NotificationThreads extends ThreadGroup implements PushQueue {
    * @throws InterruptedException
    */
   public void waitForAllThreads() throws InterruptedException {
-    try {
-      synchronized (finishPoint) {
-        finishPoint.wait();
-      }
-    } catch (final IllegalMonitorStateException e) {
-      /* All threads are most likely already done, so we ignore this */
+    synchronized (finishPoint) {
+      finishPoint.wait();
     }
   }
 

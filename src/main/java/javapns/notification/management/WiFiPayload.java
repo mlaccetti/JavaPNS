@@ -9,10 +9,10 @@ import org.json.JSONObject;
  * @author Sylvain Pedneault
  */
 class WiFiPayload extends MobileConfigPayload {
-  public WiFiPayload(final int payloadVersion, final String payloadOrganization, final String payloadIdentifier, final String payloadDisplayName, final String SSID_STR, final boolean hiddenNetwork, final String encryptionType) throws JSONException {
+  public WiFiPayload(final int payloadVersion, final String payloadOrganization, final String payloadIdentifier, final String payloadDisplayName, final String ssidStr, final boolean hiddenNetwork, final String encryptionType) throws JSONException {
     super(payloadVersion, "com.apple.wifi.managed", payloadOrganization, payloadIdentifier, payloadDisplayName);
     final JSONObject payload = getPayload();
-    payload.put("SSID_STR", SSID_STR);
+    payload.put("SSID_STR", ssidStr);
     payload.put("HIDDEN_NETWORK", hiddenNetwork);
     payload.put("EncryptionType", encryptionType);
   }

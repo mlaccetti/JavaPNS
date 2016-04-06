@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class for interacting with a specific Feedback Service.
@@ -67,7 +68,7 @@ public class FeedbackServiceManager {
    * @throws KeystoreException
    * @throws CommunicationException
    */
-  public LinkedList<Device> getDevices(final AppleFeedbackServer server) throws KeystoreException, CommunicationException {
+  public List<Device> getDevices(final AppleFeedbackServer server) throws KeystoreException, CommunicationException {
     final ConnectionToFeedbackServer connectionHelper = new ConnectionToFeedbackServer(server);
     final SSLSocket socket = connectionHelper.getSSLSocket();
     return getDevices(socket);
@@ -111,10 +112,10 @@ public class FeedbackServiceManager {
         final int fourthByte;
         final long anUnsignedInt;
 
-        firstByte = (0x000000FF & ((int) listOfDevices[offset]));
-        secondByte = (0x000000FF & ((int) listOfDevices[offset + 1]));
-        thirdByte = (0x000000FF & ((int) listOfDevices[offset + 2]));
-        fourthByte = (0x000000FF & ((int) listOfDevices[offset + 3]));
+        firstByte = 0x000000FF & ((int) listOfDevices[offset]);
+        secondByte = 0x000000FF & ((int) listOfDevices[offset + 1]);
+        thirdByte = 0x000000FF & ((int) listOfDevices[offset + 2]);
+        fourthByte = 0x000000FF & ((int) listOfDevices[offset + 3]);
         anUnsignedInt = ((long) (firstByte << 24 | secondByte << 16 | thirdByte << 8 | fourthByte)) & 0xFFFFFFFFL;
         final Timestamp timestamp = new Timestamp(anUnsignedInt * 1000);
 
@@ -125,7 +126,7 @@ public class FeedbackServiceManager {
         String deviceToken = "";
         int octet;
         for (int j = 0; j < 32; j++) {
-          octet = (0x000000FF & ((int) listOfDevices[offset + 6 + j]));
+          octet = 0x000000FF & ((int) listOfDevices[offset + 6 + j]);
           deviceToken = deviceToken.concat(String.format("%02x", octet));
         }
 

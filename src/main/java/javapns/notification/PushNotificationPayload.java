@@ -185,8 +185,7 @@ public class PushNotificationPayload extends Payload {
    * @return a blank payload that can be customized
    */
   public static PushNotificationPayload complex() {
-    final PushNotificationPayload payload = new PushNotificationPayload();
-    return payload;
+    return new PushNotificationPayload();
   }
 
   /**
@@ -197,8 +196,7 @@ public class PushNotificationPayload extends Payload {
    * @throws JSONException if any exception occurs parsing the JSON string
    */
   public static PushNotificationPayload fromJSON(final String rawJSON) throws JSONException {
-    final PushNotificationPayload payload = new PushNotificationPayload(rawJSON);
-    return payload;
+    return new PushNotificationPayload(rawJSON);
   }
 
   /**

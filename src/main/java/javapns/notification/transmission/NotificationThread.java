@@ -199,17 +199,17 @@ public class NotificationThread implements Runnable, PushQueue {
       notificationManager.initializeConnection(server);
       for (int i = 0; i < total; i++) {
         final Device device;
-        final Payload payload;
+        final Payload payloadLocal;
         if (devices != null) {
           device = devices.get(i);
-          payload = this.payload;
+          payloadLocal = this.payload;
         } else {
           final PayloadPerDevice message = messages.get(i);
           device = message.getDevice();
-          payload = message.getPayload();
+          payloadLocal = message.getPayload();
         }
         final int message = newMessageIdentifier();
-        final PushedNotification notification = notificationManager.sendNotification(device, payload, false, message);
+        final PushedNotification notification = notificationManager.sendNotification(device, payloadLocal, false, message);
         notifications.add(notification);
         try {
           if (sleepBetweenNotifications > 0) {

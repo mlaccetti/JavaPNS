@@ -11,7 +11,7 @@ import org.json.JSONObject;
 class VPNPayload extends MobileConfigPayload {
   public static final String VPNTYPE_L2TP = "L2TP";
   public static final String VPNTYPE_PPTP = "PPTP";
-  public static final String VPNTYPE_IPSec = "IPSec";
+  public static final String VPNTYPE_IP_SEC = "IPSec";
 
   public VPNPayload(final int payloadVersion, final String payloadOrganization, final String payloadIdentifier, final String payloadDisplayName, final String userDefinedName, final boolean overridePrimary, final String vpnType) throws JSONException {
     super(payloadVersion, "com.apple.vpn.managed", payloadOrganization, payloadIdentifier, payloadDisplayName);

@@ -238,8 +238,7 @@ public class Push {
    */
   public static PushQueue queue(final Object keystore, final String password, final boolean production, final int numberOfThreads) throws KeystoreException {
     final AppleNotificationServer server = new AppleNotificationServerBasicImpl(keystore, password, production);
-    final PushQueue queue = numberOfThreads <= 1 ? new NotificationThread(server) : new NotificationThreads(server, numberOfThreads);
-    return queue;
+    return numberOfThreads <= 1 ? new NotificationThread(server) : new NotificationThreads(server, numberOfThreads);
   }
 
   /**

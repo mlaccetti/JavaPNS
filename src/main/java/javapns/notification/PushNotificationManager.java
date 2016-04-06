@@ -43,7 +43,7 @@ public class PushNotificationManager {
   /* Special identifier that tells the manager to generate a sequential identifier for each payload pushed */
   private static final int SEQUENTIAL_IDENTIFIER = -1;
 
-  private static int TESTS_SERIAL_NUMBER = 1;
+  private static int testsSerialNumber = 1;
 
   private static boolean useEnhancedNotificationFormat = true;
   private static boolean heavyDebugMode = false;
@@ -605,7 +605,7 @@ public class PushNotificationManager {
       } else {
         final long ctime = System.currentTimeMillis();
         final long ttl = requestedExpiry * 1000; // time-to-live in milliseconds
-        final Long expiryDateInSeconds = ((ctime + ttl) / 1000L);
+        final Long expiryDateInSeconds = (ctime + ttl) / 1000L;
         bao.write(intTo4ByteArray(expiryDateInSeconds.intValue()));
         message.setExpiry(ctime + ttl);
       }
@@ -759,7 +759,7 @@ public class PushNotificationManager {
 
   private String buildDebugAlert(final Payload payload, final int identifier, final String deviceToken) {
     final StringBuilder alert = new StringBuilder();
-    alert.append("JAVAPNS DEBUG ALERT ").append(TESTS_SERIAL_NUMBER++).append("\n");
+    alert.append("JAVAPNS DEBUG ALERT ").append(testsSerialNumber++).append("\n");
 
     /* Current date & time */
     alert.append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(System.currentTimeMillis())).append("\n");
