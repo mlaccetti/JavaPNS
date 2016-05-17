@@ -53,8 +53,7 @@ public class BasicDeviceFactory implements DeviceFactory {
       throw new NullDeviceTokenException();
     } else {
       if (!this.devices.containsKey(id)) {
-        token = token.trim().replace(" ", "");
-        final BasicDevice device = new BasicDevice(id, token, new Timestamp(Calendar.getInstance().getTime().getTime()));
+        final BasicDevice device = new BasicDevice(id, token.trim().replace(" ", ""), new Timestamp(Calendar.getInstance().getTime().getTime()));
         this.devices.put(id, device);
         return device;
       } else {

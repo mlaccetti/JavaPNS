@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.IllegalFormatException;
 import java.util.List;
 
 /**
@@ -298,11 +299,10 @@ public class PushNotificationPayload extends Payload {
       return (T) propertyValue;
     }
     try {
-      exceptionMessage = String.format(exceptionMessage, propertyValue);
-    } catch (final Exception e) {
-      // empty
+      throw new PayloadAlertAlreadyExistsException(String.format(exceptionMessage, propertyValue));
+    } catch (final IllegalFormatException e) {
+      throw new PayloadAlertAlreadyExistsException(exceptionMessage);
     }
-    throw new PayloadAlertAlreadyExistsException(exceptionMessage);
 
   }
 

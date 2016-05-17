@@ -89,8 +89,8 @@ public abstract class ConnectionToAppleServer {
         final char[] password = KeystoreManager.getKeystorePasswordForSSL(server);
         kmf.init(keystore, password);
       } catch (Exception e) {
-        e = KeystoreManager.wrapKeystoreException(e);
-        throw e;
+        final KeystoreException wrappedKeystoreException = KeystoreManager.wrapKeystoreException(e);
+        throw wrappedKeystoreException;
       }
 
       // Get the SSLContext to help create SSLSocketFactory

@@ -111,4 +111,23 @@ public class PushedNotifications extends ArrayList<PushedNotification> implement
   public void setMaxRetained(final int maxRetained) {
     this.maxRetained = maxRetained;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+
+    PushedNotifications that = (PushedNotifications) o;
+
+    return maxRetained == that.maxRetained;
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + maxRetained;
+    return result;
+  }
 }
