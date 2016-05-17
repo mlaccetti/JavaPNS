@@ -352,7 +352,7 @@ public abstract class Payload {
    *
    * @param seconds
    */
-  private void setExpiry(final int seconds) {
+  public void setExpiry(final int seconds) {
     this.expiry = seconds;
   }
 
