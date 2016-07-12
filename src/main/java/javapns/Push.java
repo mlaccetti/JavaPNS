@@ -211,16 +211,21 @@ public class Push {
     if (numberOfThreads <= 0) {
       return sendPayload(payload, keystore, password, production, devices);
     }
+
     final AppleNotificationServer server = new AppleNotificationServerBasicImpl(keystore, password, production);
     final List<Device> deviceList = Devices.asDevices(devices);
     final NotificationThreads threads = new NotificationThreads(server, payload, deviceList, numberOfThreads);
     threads.start();
+
     try {
       threads.waitForAllThreads(true);
     } catch (final InterruptedException e) {
       logger.error(e.getMessage(), e);
     }
-    return threads.getPushedNotifications();
+
+    final PushedNotifications notifications = threads.getPushedNotifications();
+    threads.destroy();
+    return notifications;
   }
 
   /**
@@ -271,16 +276,21 @@ public class Push {
     if (numberOfThreads <= 0) {
       return sendPayloads(keystore, password, production, payloadDevicePairs);
     }
+
     final AppleNotificationServer server = new AppleNotificationServerBasicImpl(keystore, password, production);
     final List<PayloadPerDevice> payloadPerDevicePairs = Devices.asPayloadsPerDevices(payloadDevicePairs);
     final NotificationThreads threads = new NotificationThreads(server, payloadPerDevicePairs, numberOfThreads);
     threads.start();
+
     try {
       threads.waitForAllThreads(true);
     } catch (final InterruptedException e) {
       logger.error(e.getMessage(), e);
     }
-    return threads.getPushedNotifications();
+
+    final PushedNotifications notifications = threads.getPushedNotifications();
+    threads.destroy();
+    return notifications;
   }
 
   /**
