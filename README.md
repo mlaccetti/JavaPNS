@@ -16,6 +16,8 @@ Version 2.3.3 released!
 
 #### 2.3.3 Changes
 * Update dependencies: org.json and slf4j
+* Little tweaks
+* Replace deprecated SSLSession methods
 
 #### 2.3.2 Changes
 * 1.8 tweaks
