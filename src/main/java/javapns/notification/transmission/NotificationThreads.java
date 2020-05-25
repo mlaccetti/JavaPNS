@@ -1,13 +1,11 @@
 package javapns.notification.transmission;
 
 import javapns.devices.Device;
-import javapns.devices.Devices;
 import javapns.devices.exceptions.InvalidDeviceTokenFormatException;
 import javapns.notification.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.stream.Collectors;
 
 /**

@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 
 /**
  * Class for reading response packets from an APNS connection.

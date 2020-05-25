@@ -9,7 +9,6 @@ import javapns.notification.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * <h1>Pushes payloads asynchroneously using a dedicated thread.</h1>

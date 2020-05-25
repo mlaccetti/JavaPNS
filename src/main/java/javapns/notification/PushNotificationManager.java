@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -180,7 +180,7 @@ public class PushNotificationManager {
 
       buf.append("\n--------------------------------------------------------------------------\n");
 
-      for (final X509Certificate certificate : session.getPeerCertificateChain()) {
+      for (final Certificate certificate : session.getPeerCertificates()) {
         buf.append(certificate.toString());
       }
 

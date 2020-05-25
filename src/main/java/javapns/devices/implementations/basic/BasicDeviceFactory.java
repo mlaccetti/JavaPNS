@@ -47,9 +47,9 @@ public class BasicDeviceFactory implements DeviceFactory {
    * @throws NullDeviceTokenException
    */
   public Device addDevice(final String id, String token) throws Exception {
-    if ((id == null) || (id.trim().equals(""))) {
+    if ((id == null) || (id.trim().isEmpty())) {
       throw new NullIdException();
-    } else if ((token == null) || (token.trim().equals(""))) {
+    } else if ((token == null) || (token.trim().isEmpty())) {
       throw new NullDeviceTokenException();
     } else {
       if (!this.devices.containsKey(id)) {
@@ -71,7 +71,7 @@ public class BasicDeviceFactory implements DeviceFactory {
    * @throws NullIdException
    */
   public Device getDevice(final String id) throws UnknownDeviceException, NullIdException {
-    if ((id == null) || (id.trim().equals(""))) {
+    if ((id == null) || (id.trim().isEmpty())) {
       throw new NullIdException();
     } else {
       if (this.devices.containsKey(id)) {
@@ -90,7 +90,7 @@ public class BasicDeviceFactory implements DeviceFactory {
    * @throws NullIdException
    */
   public void removeDevice(final String id) throws UnknownDeviceException, NullIdException {
-    if ((id == null) || (id.trim().equals(""))) {
+    if ((id == null) || (id.trim().isEmpty())) {
       throw new NullIdException();
     }
     if (this.devices.containsKey(id)) {
