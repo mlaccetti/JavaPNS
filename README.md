@@ -12,7 +12,10 @@ Java 1.8+ compatible
 
 ### Updates
 
-Version 2.3.2 released!
+Version 2.3.3 released!
+
+#### 2.3.3 Changes
+* Update dependencies: org.json and slf4j
 
 #### 2.3.2 Changes
 * 1.8 tweaks
@@ -28,12 +31,12 @@ Version 2.3.2 released!
 
 ### Installation through Central Maven Repository
 javapns is available on the Central Maven Repository.
-To use javapns-jdk16 in your project, please add the following dependency to your pom.xml file:
+To use javapns in your project, please add the following dependency to your pom.xml file:
 ```
 <dependency>
 	<groupId>com.github.mlaccetti</groupId>
 	<artifactId>javapns</artifactId>
-	<version>2.3.2</version>
+	<version>2.3.3</version>
 </dependency>
 ```
 
